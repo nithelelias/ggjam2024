@@ -34,6 +34,8 @@ export default class Preloader extends Phaser.Scene {
     this.load.image("sad2", "assets/sad2.png");
     this.load.image("sad3", "assets/sad3.png");
     this.load.image("uiboard", "assets/uiboard.png");
+    this.load.image("uiboard-2", "assets/uiboard-2.png");
+    this.load.image("uiboard-3", "assets/uiboard-3.png");
 
     this.load.image("body", "assets/body.png");
     this.load.image("body-sad", "assets/body-sad.png");
@@ -50,6 +52,13 @@ export default class Preloader extends Phaser.Scene {
     this.load.image("btn_info_press", "assets/btn_info_press.png");
     this.load.image("btn_credits", "assets/btn_credits.png");
     this.load.image("btn_credits_press", "assets/btn_credits_press.png");
+    this.load.image("final-modal", "assets/final-modal.png");
+
+    ///
+    this.load.image("cursor_default", "assets/cur_hand.png");
+    this.load.image("cursor_pointer", "assets/cur_point.png");
+    this.load.image("cursor_press", "assets/cur_press.png");
+    this.load.image("cursor_grab", "assets/cur_grab.png");
   }
   waitForWebFont() {
     return new Promise((resolve) => {

@@ -38,7 +38,7 @@ function getLaughTextByLevel(level) {
 
 function addLaughText(scene, x, y, text_laugh, color = "black", fontSize = 32) {
   const laughText = scene.add.text(x, y, text_laugh, {
-    fontSize: 32,
+    fontSize,
     color,
     fontFamily: "gamefont",
   });
@@ -47,7 +47,7 @@ function addLaughText(scene, x, y, text_laugh, color = "black", fontSize = 32) {
 }
 
 function laughUp(scene, x, y, text_laugh) {
-  const laughText = addLaughText(scene, x, y, text_laugh, "black", "24");
+  const laughText = addLaughText(scene, x, y, text_laugh, "black", 18);
   laughText.setAlpha(0.3);
 
   scene.tweens.chain({
@@ -141,7 +141,7 @@ class Personaje extends Phaser.GameObjects.Container {
 
     this.add([this.sprite]);
     this.setSize(80, 80);
-    this.setInteractive();
+    this.setInteractive({ cursor: `url("assets/cur_point.png"), grab` });
     this.scene.input.setDraggable(this);
 
     this.on("pointerdown", (pointer) => {
@@ -149,6 +149,10 @@ class Personaje extends Phaser.GameObjects.Container {
         laughUp(this.scene, this.x, this.y, "No");
         return;
       }
+      //this.scene.input.setDefaultCursor(`url("assets/cur_grab.png"), grab`);
+      this.scene.input.manager.setCursor({
+        cursor: 'url("assets/cur_grab.png"), grab',
+      });
       console.log(this.laughlevel);
       this.laughing(laughClickpower);
       this.thikcle_animation();
@@ -267,7 +271,8 @@ class Personaje extends Phaser.GameObjects.Container {
         this,
         getLaughTextByLevel(this.laughlevel),
         200,
-        "#1889DF"
+        "#1889DF",
+        16
       );
       this.scene.playAudioSound(this._audio_ids[random(0, 2)]);
       this.laughing_animation();
@@ -354,7 +359,8 @@ export default class Main extends Phaser.Scene {
     window.main = this;
   }
   create() {
-    this.scene.launch("ui");
+    const ui = this.scene.get("ui");
+    ui.startMain();
     this.level = 0;
     this.initAudios();
     this.cameras.main.setZoom(2);

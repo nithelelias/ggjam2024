@@ -1,4 +1,5 @@
 import { COLORS } from "../constants.js";
+import customCursor from "../src/customCursor.js";
 import textControlButton from "../src/textControlButton.js";
 
 export default class UIScene extends Phaser.Scene {
@@ -11,12 +12,16 @@ export default class UIScene extends Phaser.Scene {
       color: COLORS.text,
       fontSize: 24,
     }); */
+    this.input.setDefaultCursor(`url("assets/cur_hand.png"), grab`);
+    window.ui = this;
+    //  customCursor(this);
+  }
+  startMain() {
     this.createProgressLevel();
     this.volumeControl();
     this.createLevelBoard();
     this.createTimeBoard();
     this.scene.bringToTop();
-    window.ui = this;
   }
   createLevelBoard() {
     let bg = this.add.image(0, 20, "uiboard").setOrigin(0).setScale(0.8);
@@ -40,6 +45,7 @@ export default class UIScene extends Phaser.Scene {
     let template = `⏱️ M:S`;
     let startTime = Date.now();
     let bg = this.add.image(0, 120, "uiboard").setOrigin(0).setScale(0.8);
+    let active = true;
     this.timeText = this.add
       .text(80, 170, template, {
         fontFamily: "gamefont",
@@ -47,7 +53,13 @@ export default class UIScene extends Phaser.Scene {
         fontSize: 32,
       })
       .setOrigin(0.5);
+    this.timeText.stop = () => {
+      active = false;
+    };
     this.timeText.update = (level) => {
+      if (!active) {
+        return;
+      }
       let diff = Date.now() - startTime;
       let seconds = parseInt(diff / 1000);
       let minutes = parseInt(seconds / 60);
@@ -92,19 +104,34 @@ export default class UIScene extends Phaser.Scene {
     this.progress.setDisplaySize(w, 32);
   }
   finalScreen() {
-    let title = this.add
-      .text(this.scale.width / 2, this.scale.height / 2, ["SMILE"], {
+    this.timeText.stop();
+    let bg = this.add.image(0, 0, "final-modal").setOrigin(0.5);
+
+    let logo = this.add.image(0, 0, "logo").setScale(0.6).setOrigin(0.5, 1);
+
+    const title = this.add
+      .text(0, logo.y + logo.displayHeight / 4 + 8, "Felicidades", {
         fontFamily: "gamefont",
-        fontSize: 512,
+        fontSize: 64,
+        color: "#FF6669",
+      })
+      .setOrigin(0.5, 0);
+
+    const prah = this.add
+      .text(0, title.y + title.height + 8, "¡Contagiaste a todos de  risa!", {
+        fontFamily: "gamefont",
+        fontSize: 32,
         color: "black",
       })
-      .setOrigin(0.5)
-      .setDepth(100)
-      .setAlpha(0)
-      .setScale(0.1)
-      .setScrollFactor(0);
+      .setOrigin(0.5, 0);
+
+    let container = this.add.container(
+      this.scale.width / 2,
+      this.scale.height / 2,
+      [bg, logo, title, prah]
+    );
     this.tweens.add({
-      targets: title,
+      targets: container,
       alpha: 1,
       scale: 1,
       duration: 600,
@@ -113,6 +140,10 @@ export default class UIScene extends Phaser.Scene {
   }
   update() {
     const main = this.scene.get("main");
+
+    if (!main.scene.isActive()) {
+      return;
+    }
     this.updateProgressLevel(main.laughPercentage);
     this.levelText.update(main.level);
     this.timeText.update(main.level);

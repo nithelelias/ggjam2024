@@ -1,3 +1,5 @@
+import { CURSOR } from "../src/customCursor.js";
+
 function addButton(
   scene,
   x,
@@ -7,7 +9,11 @@ function addButton(
   onClick = () => null
 ) {
   let btn = scene.add.image(0, 0, img_idle);
-  btn.setInteractive();
+  btn.setInteractive({ cursor: `url("assets/cur_point.png"), grab` });
+  /* btn.on("pointerover", () => {
+    CURSOR.setPointer();
+  }); */
+
   btn.on("pointerdown", () => {
     btn.setTexture(img_press);
     btn.once("pointerup", onClick);
@@ -33,6 +39,7 @@ export default class Intro extends Phaser.Scene {
     super("intro");
   }
   create() {
+    this.scene.launch("ui");
     this.add
       .image(0, 0, "home")
       .setOrigin(0)
