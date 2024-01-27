@@ -1,15 +1,14 @@
-import { COLORS } from "./constants.js";
+
 import Intro from "./scene/intro.js";
 import Main from "./scene/main.js";
 import Preloader from "./scene/preload.js";
 import UIScene from "./scene/ui.js";
 let parent = document.querySelector("#gameWrapper");
-parent.style.backgroundColor = COLORS.secundary;
 const config = {
   type: Phaser.AUTO,
   width: window.innerWidth,
   height: window.innerHeight,
-  backgroundColor: COLORS.primary,
+  transparent: true,
   parent: parent,
 
   scale: {

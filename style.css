@@ -13,6 +13,8 @@ body {
   align-items: center;
   background-color: #fff;
   box-sizing: border-box;
+  background-image: url(assets/fondo.png);
+  background-repeat: repeat;
 }
 .fixed-hidden {
   position: fixed;

@@ -66,7 +66,7 @@ export default class UIScene extends Phaser.Scene {
       this.timeText.setText(
         template
           .replace("M", minutes.toString().padStart(2, "0"))
-          .replace("S", (seconds%60).toString().padStart(2, "0"))
+          .replace("S", (seconds % 60).toString().padStart(2, "0"))
       );
       if (level === 2) {
         bg.setTexture("uiboard-2");
@@ -92,6 +92,9 @@ export default class UIScene extends Phaser.Scene {
     );
   }
   createProgressLevel() {
+    this.add
+      .rectangle(0, this.scale.height, this.scale.width, 32, 0xf1cc30,.4)
+      .setOrigin(0, 1);
     this.progress = this.add
       .rectangle(0, this.scale.height, 32, 32, 0xf1cc30)
       .setOrigin(0, 1);
@@ -105,6 +108,12 @@ export default class UIScene extends Phaser.Scene {
   }
   finalScreen() {
     this.timeText.stop();
+    const graphics = this.add.graphics();
+
+    graphics.fillStyle(0xfecd01, 0.7);
+
+    //  Using an object to define a different radius per corner
+    graphics.fillRoundedRect(0, 0, this.scale.width, this.scale.height);
     let bg = this.add.image(0, 0, "final-modal").setOrigin(0.5);
 
     let logo = this.add.image(0, 0, "logo").setScale(0.6).setOrigin(0.5, 1);
@@ -119,7 +128,7 @@ export default class UIScene extends Phaser.Scene {
 
     const prah = this.add
       .text(0, title.y + title.height + 8, "¡Contagiaste a todos de  risa!", {
-        fontFamily: "gamefont",
+        fontFamily: "gamefont2",
         fontSize: 32,
         color: "black",
       })
@@ -137,6 +146,7 @@ export default class UIScene extends Phaser.Scene {
       duration: 600,
       ease: "bounceOut",
     });
+
   }
   update() {
     const main = this.scene.get("main");
