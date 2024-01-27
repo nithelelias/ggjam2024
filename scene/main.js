@@ -1,5 +1,6 @@
 import { COLORS, TOTAL_SOUND_LAUGHS } from "../constants.js";
 const laughs = ["JI", "JA", "LOL"];
+const emojisLaughs = ["😝", "😂", "🤣"];
 let temp_id_ite = 0;
 let laughClickpower = 1;
 
@@ -12,6 +13,12 @@ function getNewLaughAudio() {
     temp_id_ite = 1;
   }
   return "laugh" + temp_id_ite;
+}
+function getBadWord() {
+  if (random(1, 20) === 15) {
+    return "sniff*";
+  }
+  return "buah";
 }
 function getLaughTextByLevel(level) {
   if (level < 20) {
@@ -29,17 +36,18 @@ function getLaughTextByLevel(level) {
   return laughs[2];
 }
 
-function addLaughText(scene, x, y, text_laugh, color = "black") {
+function addLaughText(scene, x, y, text_laugh, color = "black", fontSize = 32) {
   const laughText = scene.add.text(x, y, text_laugh, {
-    fontSize: random(12, 32),
+    fontSize: 32,
     color,
     fontFamily: "gamefont",
   });
+
   return laughText;
 }
 
 function laughUp(scene, x, y, text_laugh) {
-  const laughText = addLaughText(scene, x, y, text_laugh);
+  const laughText = addLaughText(scene, x, y, text_laugh, "black", "24");
   laughText.setAlpha(0.3);
 
   scene.tweens.chain({
@@ -67,8 +75,15 @@ function laughUp(scene, x, y, text_laugh) {
   });
 }
 
-function shotLaugh(scene, from, text_laugh, dist = 200) {
-  const laugh_shot = addLaughText(scene, from.x, from.y, text_laugh, "red");
+function shotLaugh(scene, from, text_laugh, dist = 200, color, fontSize) {
+  const laugh_shot = addLaughText(
+    scene,
+    from.x,
+    from.y,
+    text_laugh,
+    color,
+    fontSize
+  );
   laugh_shot.is = "laugh_shot";
   laugh_shot.from = from;
   laugh_shot.intensiti = Phaser.Math.Clamp(
@@ -106,19 +121,23 @@ function shotLaugh(scene, from, text_laugh, dist = 200) {
 }
 
 class Personaje extends Phaser.GameObjects.Container {
-  laughlevel = random(-50, 0);
+  laughlevel = 0;
   busy = { thickle: false, laughing: false, laugh_text: false };
+  isNegative = false;
   is = "Personaje";
-  constructor(scene, x, y, _color = 0xff6699) {
+  constructor(scene, x, y) {
     super(scene, x, y, []);
 
     scene.add.existing(this);
 
     this.sprite = scene.add.container(0, 0, [
-      scene.add.circle(0, 0, 80, _color).setScale(0.6, 1),
-      scene.add.image(0, -20, "face1").setScale(0.5),
+      scene.add.circle(0, 0, 80, 0x0055ba).setScale(0.6).setAlpha(0),
+      scene.add.image(0, 0, "body").setScale(0.5),
+      scene.add.image(0, 0, "face1").setScale(0.5),
     ]);
-    this.sprite.face = this.sprite.list[1];
+    this.sprite.bordercircle = this.sprite.list[0];
+    this.sprite.body = this.sprite.list[1];
+    this.sprite.face = this.sprite.list[2];
 
     this.add([this.sprite]);
     this.setSize(80, 80);
@@ -126,28 +145,28 @@ class Personaje extends Phaser.GameObjects.Container {
     this.scene.input.setDraggable(this);
 
     this.on("pointerdown", (pointer) => {
+      if (this.isNegative) {
+        laughUp(this.scene, this.x, this.y, "No");
+        return;
+      }
+      console.log(this.laughlevel);
       this.laughing(laughClickpower);
       this.thikcle_animation();
-      console.log(this.laughlevel);
+
       this.doShotLaugh();
     });
 
     /// pick
   }
-  doPick(startPointer) {
-    let camera = this.scene.cameras.main;
-
-    const onmove = (pointer) => {
-      this.x = pointer.x;
-      this.y = pointer.y;
-      console.log(this.x, pointer);
-      window.test = this;
-    };
-    this.scene.input.on("pointermove", onmove);
-    this.scene.input.once("pointerup", () => {
-      this.scene.input.off("pointermove", onmove);
-    });
+  setAsNegative() {
+    this.isNegative = true;
+    this.sprite.bordercircle.setAlpha(1);
+    window.test = this;
+    this.laughlevel = -50;
+    this.scene.input.setDraggable(this, false);
+    this.setScale(1.5);
   }
+
   thikcle_animation() {
     if (this.busy.thickle) {
       return;
@@ -181,8 +200,7 @@ class Personaje extends Phaser.GameObjects.Container {
     if (this.busy.laugh_text) {
       return false;
     }
-    let timeout =
-      this.laughlevel < 20 ? 1000 : this.laughlevel < 50 ? 500 : 300;
+    let timeout = this.laughlevel < 70 ? 1000 : 500;
     this.busy.laugh_text = true;
     let textLaugh = getLaughTextByLevel(this.laughlevel);
     laughUp(this.scene, this.x, this.y, textLaugh);
@@ -221,36 +239,81 @@ class Personaje extends Phaser.GameObjects.Container {
       return;
     }
     this.busy.catched_laugh = true;
-    this.laughing(intensiti);
+    if (this.isNegative) {
+      this.laughing(intensiti / 10);
+    } else {
+      this.laughing(intensiti);
+    }
+
     setTimeout(() => {
       this.busy.catched_laugh = false;
-    }, 500);
+    }, random(100, 500));
+  }
+  catchNegative(intensiti) {
+    this.laughlevel -= intensiti;
   }
   reduceLaughLevel() {
     this.coeRedLaug = Math.max(0, this.coeRedLaug - 0.0001);
     let redLaugh = Math.min(1, 1 - this.coeRedLaug);
-
     this.laughlevel -= redLaugh;
+    if (this.laughlevel < -50) {
+      this.laughlevel = -50;
+    }
   }
   doShotLaugh() {
     if (this.laughlevel > 10 && random(1, 10) > 2) {
-      shotLaugh(this.scene, this, getLaughTextByLevel(this.laughlevel));
+      shotLaugh(
+        this.scene,
+        this,
+        getLaughTextByLevel(this.laughlevel),
+        200,
+        "#1889DF"
+      );
       this.scene.playAudioSound(this._audio_ids[random(0, 2)]);
       this.laughing_animation();
     }
   }
-  updateFace() {
-    let t_name = "face1";
+  doShotNegative() {
     if (this.laughlevel > 20) {
-      t_name = "face2";
+      //  return;
     }
-    if (this.laughlevel > 50) {
-      t_name = "face3";
+    if (this.busy.shotting_negative) {
+      return;
     }
-    if (this.laughlevel > 70) {
-      t_name = "face4";
+    this.busy.shotting_negative = true;
+    let shottext = shotLaugh(this.scene, this, getBadWord(), 200, "#fc6769");
+    shottext.is_negative = true;
+    setTimeout(() => {
+      this.busy.shotting_negative = false;
+    }, random(1, 6) * 200);
+  }
+  updateFace() {
+    let t_name = "sad3";
+    if (this.laughlevel > -30) {
+      t_name = "sad2";
     }
+
+    if (this.laughlevel > -10) {
+      t_name = "sad1";
+    }
+
+    if (this.laughlevel > 0) {
+      t_name = "happy1";
+    }
+
+    if (this.laughlevel > 40) {
+      t_name = "happy2";
+    }
+    if (this.laughlevel > 80) {
+      t_name = "happy3";
+    }
+
     this.sprite.face.setTexture(t_name);
+    if (this.laughlevel < 0) {
+      this.sprite.body.setTexture("body-sad");
+    } else {
+      this.sprite.body.setTexture("body");
+    }
   }
   update() {
     if (this.laughlevel > 0) {
@@ -259,19 +322,40 @@ class Personaje extends Phaser.GameObjects.Container {
         this.doShotLaugh();
       }
     }
+    if (this.isNegative) {
+      this.doShotNegative();
+    }
     this.updateFace();
+
+    if (this.laughlevel < -50) {
+      this.laughlevel = -50;
+    }
+    if (this.laughlevel > 100) {
+      this.laughlevel = 100;
+    }
   }
 }
 
 export default class Main extends Phaser.Scene {
   laughPercentage = 0;
-  level = 1;
+  level = 0;
   constructor() {
-    super("main");
+    super({
+      key: "main",
+      physics: {
+        arcade: {
+          gravity: { y: 0 },
+        },
+        matter: {
+          gravity: { y: 2.5 },
+        },
+      },
+    });
     window.main = this;
   }
   create() {
     this.scene.launch("ui");
+    this.level = 0;
     this.initAudios();
     this.cameras.main.setZoom(2);
     this.center = {
@@ -290,9 +374,16 @@ export default class Main extends Phaser.Scene {
       this.groupPersonajes,
       this.laugShotsGroup,
       (personaje, shot, e) => {
-        if (personaje !== shot.from) {
-          personaje.catchLaugh(20);
+        if (personaje === shot.from) {
+          return;
         }
+        if (shot.is_negative) {
+          personaje.catchNegative(10);
+          shot.destroy();
+          return;
+        }
+        personaje.catchLaugh(25);
+
         return;
       },
       null,
@@ -302,10 +393,7 @@ export default class Main extends Phaser.Scene {
       gameObject.x = dragX;
       gameObject.y = dragY;
     });
-    this.addPersonaje(this.center.x, this.center.y);
-    this.addPersonaje(this.center.x - 100, this.center.y);
-    this.addPersonaje(this.center.x - 60, this.center.y + 120);
-    this.addPersonaje(this.center.x + 100, this.center.y);
+    this.nextLevel();
   }
   initAudios() {
     for (let i = 1; i <= TOTAL_SOUND_LAUGHS; i++) {
@@ -369,8 +457,7 @@ export default class Main extends Phaser.Scene {
     this.laugShotsGroup.add(laughText);
   }
   addPersonaje(x, y) {
-    this.colors.random(50);
-    const p = new Personaje(this, x, y, this.colors.color);
+    const p = new Personaje(this, x, y);
     (p._audio_ids = [getNewLaughAudio()]),
       getNewLaughAudio(),
       getNewLaughAudio();
@@ -378,6 +465,7 @@ export default class Main extends Phaser.Scene {
     this.groupPersonajes.add(p);
 
     this.physics.add.collider(p, this.groupPersonajes);
+    return p;
   }
   calcLaughPercentage() {
     let laughlevel = 0;
@@ -390,17 +478,151 @@ export default class Main extends Phaser.Scene {
   }
 
   nextLevel() {
+    if (this.level === 5) {
+      return;
+    }
     this.level++;
+    if (this.level === 4) {
+      this.level = 5;
+      this.winScreen();
+      return;
+    }
     let total = this.level * 4;
-    let camscale = 2 / this.level;
+
+    let camscale = 2 - this.level * 0.5;
     this.cameras.main.zoomTo(camscale, 300);
     let dist = 130 * this.level;
+
     for (let i = 0; i < total; i++) {
       let angle = Phaser.Math.Angle.RandomDegrees();
-      let vel = this.physics.velocityFromAngle(angle, random(dist-20,dist+20));
+      let vel = this.physics.velocityFromAngle(
+        angle,
+        random(dist - 20, dist + 20)
+      );
       this.addPersonaje(this.center.x + vel.x, this.center.y + vel.y);
     }
+
+    if (this.level === 1) {
+      this.addPersonaje(this.center.x, this.center.y).setAsNegative();
+    }
+    if (this.level === 2) {
+      let dist = 240;
+      this.addPersonaje(this.center.x, this.center.y + dist).setAsNegative();
+      this.addPersonaje(this.center.x, this.center.y - dist).setAsNegative();
+      this.addPersonaje(this.center.x + dist, this.center.y).setAsNegative();
+      this.addPersonaje(this.center.x - dist, this.center.y).setAsNegative();
+    }
+    if (this.level === 3) {
+      let dist = 400;
+      let total_bad = 8;
+      let angle = 0;
+      for (let i = 0; i < total_bad; i++) {
+        let vel = this.physics.velocityFromAngle(angle, dist);
+        this.addPersonaje(this.center.x + vel.x, this.center.y + vel.y)
+          .setScale(1.5)
+          .setAsNegative();
+        angle += 45;
+      }
+    }
+
+    /* let totalBad = total / 4;
+    for (let i = 0; i < totalBad; i++) {
+      let p = newCreated.splice(random(0, newCreated.length - 1), 1)[0];
+      if (p) {
+        p.setAsNegative();
+      }
+    } */
   }
+  winScreen() {
+    this.cameras.main.zoomTo(1, 300);
+    const goToCenter = () => {
+      let promise = [];
+
+      this.groupPersonajes.children.entries.forEach((_el) => {
+        _el.isNegative = false;
+        promise.push(
+          new Promise((resolve) => {
+            this.tweens.add({
+              targets: _el,
+              x: this.center.x,
+              y: this.center.y,
+              delay: random(100, 500),
+              //alpha: 0.3,
+              ease: "sine.inout",
+              duration: random(300, 600),
+              onComplete: () => {
+                resolve();
+              },
+            });
+          })
+        );
+      });
+      return Promise.all(promise);
+    };
+    const explode = () => {
+      let promise = [];
+      let dist = this.center.x * 0.8;
+      this.groupPersonajes.children.entries.forEach((_el) => {
+        promise.push(
+          new Promise((resolve) => {
+            let angle = Phaser.Math.Angle.RandomDegrees();
+            let vel = this.physics.velocityFromAngle(
+              angle,
+              dist * (random(3, 10) / 10)
+            );
+            this.tweens.add({
+              targets: _el,
+              x: this.center.x + vel.x,
+              y: this.center.y + vel.y,
+              delay: random(100, 300),
+              //alpha: 0.3,
+              ease: "sine.inout",
+              duration: random(300, 600),
+              onComplete: () => {
+                resolve();
+              },
+            });
+          })
+        );
+      });
+      return Promise.all(promise);
+    };
+    goToCenter().then(() => {
+      //  this.cameras.main.zoomTo(1, 600);
+      explode();
+      this.particleEnd();
+    });
+  }
+  particleEnd() {
+    this.matter.world.setBounds(0, 0, this.scale.width, this.scale.height);
+    let radius = 82;
+    for (let i = 0; i < 128; i++) {
+      setTimeout(
+        (_idx) => {
+          const particle = this.matter.add.image(
+            Phaser.Math.Between(0, this.scale.width),
+            0,
+            "par" + random(1, 3),
+            null,
+            { shape: { type: "circle", radius }, ignorePointer: true }
+          );
+
+          particle.setScale(random(3, 14) / 10);
+          particle.setFriction(0.005);
+          particle.setBounce(0.9);
+          particle.setMass(random(1, 2));
+        },
+        60 * i,
+        i
+      );
+    }
+    const ui = this.scene.get("ui");
+    ui.finalScreen();
+    setTimeout(() => {
+      this.scene.pause();
+    }, 10000);
+  }
+
   update() {
     this.calcLaughPercentage();
     /*  if (this.laughPercentage > 5) {

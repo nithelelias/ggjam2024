@@ -1,4 +1,5 @@
 import { COLORS } from "./constants.js";
+import Intro from "./scene/intro.js";
 import Main from "./scene/main.js";
 import Preloader from "./scene/preload.js";
 import UIScene from "./scene/ui.js";
@@ -16,8 +17,12 @@ const config = {
   },
   physics: {
     default: "arcade",
+    matter: {
+      debug: true,
+      gravity: { y: 0.5 },
+    },
   },
-  scene: [Preloader, UIScene, Main],
+  scene: [Preloader, Intro, UIScene, Main],
 };
 
 const game = new Phaser.Game(config);
