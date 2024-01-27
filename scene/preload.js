@@ -21,6 +21,9 @@ export default class Preloader extends Phaser.Scene {
     //////// audios ---|
 
     this.load.image("face1", "assets/face1.png");
+    this.load.image("face2", "assets/face2.png");
+    this.load.image("face3", "assets/face3.png");
+    this.load.image("face4", "assets/face4.png");
   }
   waitForWebFont() {
     return new Promise((resolve) => {

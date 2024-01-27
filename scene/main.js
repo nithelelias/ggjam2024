@@ -118,6 +118,7 @@ class Personaje extends Phaser.GameObjects.Container {
       scene.add.circle(0, 0, 80, _color).setScale(0.6, 1),
       scene.add.image(0, -20, "face1").setScale(0.5),
     ]);
+    this.sprite.face = this.sprite.list[1];
 
     this.add([this.sprite]);
     this.setSize(80, 80);
@@ -238,6 +239,19 @@ class Personaje extends Phaser.GameObjects.Container {
       this.laughing_animation();
     }
   }
+  updateFace() {
+    let t_name = "face1";
+    if (this.laughlevel > 20) {
+      t_name = "face2";
+    }
+    if (this.laughlevel > 50) {
+      t_name = "face3";
+    }
+    if (this.laughlevel > 70) {
+      t_name = "face4";
+    }
+    this.sprite.face.setTexture(t_name);
+  }
   update() {
     if (this.laughlevel > 0) {
       this.reduceLaughLevel();
@@ -245,6 +259,7 @@ class Personaje extends Phaser.GameObjects.Container {
         this.doShotLaugh();
       }
     }
+    this.updateFace();
   }
 }
 
@@ -379,11 +394,10 @@ export default class Main extends Phaser.Scene {
     let total = this.level * 4;
     let camscale = 2 / this.level;
     this.cameras.main.zoomTo(camscale, 300);
-    let dist = 180 * this.level;
-
+    let dist = 130 * this.level;
     for (let i = 0; i < total; i++) {
       let angle = Phaser.Math.Angle.RandomDegrees();
-      let vel = this.physics.velocityFromAngle(angle, dist);
+      let vel = this.physics.velocityFromAngle(angle, random(dist-20,dist+20));
       this.addPersonaje(this.center.x + vel.x, this.center.y + vel.y);
     }
   }
