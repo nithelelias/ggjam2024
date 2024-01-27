@@ -66,7 +66,7 @@ export default class UIScene extends Phaser.Scene {
       this.timeText.setText(
         template
           .replace("M", minutes.toString().padStart(2, "0"))
-          .replace("S", seconds.toString().padStart(2, "0"))
+          .replace("S", (seconds%60).toString().padStart(2, "0"))
       );
       if (level === 2) {
         bg.setTexture("uiboard-2");
