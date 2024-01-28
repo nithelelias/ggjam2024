@@ -510,7 +510,7 @@ export default class Main extends Phaser.Scene {
           return;
         }
         if (shot.is_negative) {
-          personaje.catchNegative(6);
+          personaje.catchNegative(8);
           shot.destroy();
           this.score -= 2;
           return;
