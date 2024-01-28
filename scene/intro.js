@@ -1,4 +1,5 @@
 import addButton from "../src/addButton.js";
+import mobileCheck from "../src/isMobile.js";
 var intro_started = false;
 export default class Intro extends Phaser.Scene {
   constructor() {
@@ -10,26 +11,81 @@ export default class Intro extends Phaser.Scene {
       .image(0, 0, "home")
       .setOrigin(0)
       .setDisplaySize(this.scale.width, this.scale.height);
-
+    this.sound.add("intro-logo").setVolume(0.25);
     this.createLogoAnim();
-    this.showMenu();
-    if (!intro_started) {
-      intro_started = true;
-      let intro = this.sound.add("intro-logo")
-      intro.setVolume(0.25);
-      setTimeout(() => {
-        intro.play();
-      }, 600);
+    this.playIntroSound();
+  }
+  playIntroSound() {
+    if (intro_started) {
+      this.showMenu();
+      return;
     }
+
+    intro_started = true;
+    let introSound = this.sound.get("intro-logo");
+    let timeoutid = 0;
+    const play = () => {
+      this.showMenu();
+      timeoutid = setTimeout(() => {
+        introSound.play();
+      }, 400);
+    };
+
+    let startText = this.add
+      .text(
+        this.scale.width / 2,
+        this.scale.height * 0.7,
+        [(mobileCheck() ? "tap" : "clic") + " para comenzar"],
+        {
+          fontFamily: "gamefont",
+          fontSize: 48,
+          color: "black",
+        }
+      )
+      .setOrigin(0.5);
+
+    let timeoutid2 = setTimeout(() => {
+      this.input.setDefaultCursor(`url("assets/cur_point.png"), pointer`);
+    }, 100);
+
+    this.input.once("pointerdown", () => {
+      this.input.setDefaultCursor(`url("assets/cur_hand.png"), grab`);
+      startText.destroy();
+      play();
+    });
+    this.fondo.on("destroy", () => {
+      clearTimeout(timeoutid);
+      clearTimeout(timeoutid2);
+      this.volumeOffIntro();
+    });
+  }
+  volumeOffIntro() {
+    return new Promise((resolve) => {
+      let introsound = this.sound.get("intro-logo");
+      if (!introsound.isPlaying) {
+        resolve();
+        return;
+      }
+      this.tweens.add({
+        targets: introsound,
+        volume: 0,
+        duration: 300,
+        onComplete: () => {
+          introsound.stop();
+          resolve();
+        },
+      });
+    });
   }
   createLogoAnim() {
     const div = document.createElement("div");
     div.classList.add("logo-intro");
-    let w = 408,
-      h = 356;
+    let isMobile = mobileCheck();
+    let h = Math.min(356, this.scale.height * (isMobile ? 0.3 : 0.5)),
+      w = h / 0.87; 
     const styles = {
       position: "fixed",
-      top: "20px",
+      top: isMobile ? "0px" : "20px",
       left: `calc(50% - ${w / 2}px)`,
       zIndex: 99999,
       display: "flex",
@@ -39,7 +95,7 @@ export default class Intro extends Phaser.Scene {
     for (let key in styles) {
       div.style[key] = styles[key];
     }
-    div.innerHTML = `<img src='assets/mouth-anim.png' width="${w}px"/>`;
+    div.innerHTML = `<img src='assets/mouth-anim.png' height="${h}px"/>`;
     document.body.append(div);
 
     this.fondo.on("destroy", () => {
@@ -94,16 +150,22 @@ export default class Intro extends Phaser.Scene {
     });
   }
   showInfo() {
-    this.scene.stop();
-    this.scene.start("instructions");
+    this.volumeOffIntro().then(() => {
+      this.scene.stop();
+      this.scene.start("instructions");
+    });
   }
   showCredits() {
-    this.scene.stop();
-    this.scene.start("team");
+    this.volumeOffIntro().then(() => {
+      this.scene.stop();
+      this.scene.start("team");
+    });
   }
 
   goToGame() {
-    this.scene.stop();
-    this.scene.start("main");
+    this.volumeOffIntro().then(() => {
+      this.scene.stop();
+      this.scene.start("main");
+    });
   }
 }
