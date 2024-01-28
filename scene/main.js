@@ -157,14 +157,16 @@ class Personaje extends Phaser.GameObjects.Container {
       0x333333,
       30
     ); */
+    this.setDepth(this.y + 50);
     this.add([this.sprite]);
     this.setSize(this.sprite.body.displayWidth, this.sprite.body.displayHeight);
+  }
+  setAsInteractive() {
     this.setInteractive({ cursor: `url("assets/cur_point.png"), grab` });
     this.scene.input.setDraggable(this);
-    this.setDepth(this.y + 50);
     this.on("pointerdown", (pointer) => {
       if (this.isNegative) {
-        laughUp(this.scene, this.x, this.y, "No","red");
+        laughUp(this.scene, this.x, this.y, "No", "red");
         return;
       }
       this.setScale(1.05);
@@ -177,20 +179,21 @@ class Personaje extends Phaser.GameObjects.Container {
       this.scene.input.manager.setCursor({
         cursor: 'url("assets/cur_grab.png"), grab',
       });
-      console.log(this.laughlevel);
-      this.laughing(laughClickpower);
-      this.thikcle_animation();
-
-      this.doShotLaugh();
+      this.doThickle();
     });
-
-    /// pick
+  }
+  doThickle() {
+    /* console.log(this.laughlevel); */
+    if (!this.thikcle_animation()) {
+      return;
+    }
+    this.laughing(laughClickpower);
+    this.doShotLaugh();
   }
   setAsNegative() {
     this.isNegative = true;
     //this.sprite.bordercircle.setAlpha(1);
     this.laughlevel = -50;
-    this.scene.input.setDraggable(this, false);
     this.setScale(1.5);
     this.sprite.body.setTexture("body-sad");
     setTimeout(() => {
@@ -201,7 +204,7 @@ class Personaje extends Phaser.GameObjects.Container {
 
   thikcle_animation() {
     if (this.busy.thickle) {
-      return;
+      return false;
     }
     laughUp(this.scene, this.x, this.y, "thickle", "0x333333", 12);
     this.busy.thickle = true;
@@ -227,6 +230,7 @@ class Personaje extends Phaser.GameObjects.Container {
         this.busy.thickle = false;
       },
     });
+    return true;
   }
   doLaughText() {
     if (this.busy.laugh_text) {
@@ -314,7 +318,15 @@ class Personaje extends Phaser.GameObjects.Container {
       return;
     }
     this.busy.shotting_negative = true;
-    let shottext = shotLaugh(this.scene, this, getBadWord(), 200, "#fc6769",24,2000);
+    let shottext = shotLaugh(
+      this.scene,
+      this,
+      getBadWord(),
+      200,
+      "#fc6769",
+      24,
+      2000
+    );
     shottext.is_negative = true;
     setTimeout(() => {
       this.busy.shotting_negative = false;
@@ -429,6 +441,9 @@ export default class Main extends Phaser.Scene {
     this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
       gameObject.x = dragX;
       gameObject.y = dragY;
+      if (gameObject.doThickle) {
+        gameObject.doThickle();
+      }
     });
     this.nextLevel();
   }
@@ -538,7 +553,10 @@ export default class Main extends Phaser.Scene {
           angle,
           random(dist - 20, dist + 20)
         );
-        this.addPersonaje(this.center.x + vel.x, this.center.y + vel.y);
+        this.addPersonaje(
+          this.center.x + vel.x,
+          this.center.y + vel.y
+        ).setAsInteractive();
       }
     }
 
