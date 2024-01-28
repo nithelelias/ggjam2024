@@ -35,7 +35,7 @@ export default class Team extends Phaser.Scene {
       centerX,
       bottom,
       2,
-      "pic_product",
+      "pic_leader",
       "ANdrea Vargas",
       "Lider equipo"
     );
@@ -51,35 +51,31 @@ export default class Team extends Phaser.Scene {
   addTeamMenberContainer(x, y, colorId, pic, name, role) {
     let container = this.add.container(x, y, [
       this.add.circle(0, 0, 90, 0xd9d9d9).setOrigin(0.5),
-      this.add.image(0, 0, "elipse-" + colorId).setOrigin(0.5),
-      this.add.text(0, 160, name, {
-        fontFamily: "gamefont2",
-        fontSize: 32,
-        color: { 1: "#9747FF", 2: "#F229B8", 3: "#1889DF" }[colorId],
-      }).setOrigin(.5),
-      this.add.text(0, 210, role, {
-        fontFamily: "gamefont2",
-        fontSize: 24,
-        color: "black",
-      }).setOrigin(.5),
+
+      this.add
+        .text(0, 160, name, {
+          fontFamily: "gamefont2",
+          fontSize: 32,
+          color: { 1: "#9747FF", 2: "#F229B8", 3: "#1889DF" }[colorId],
+        })
+        .setOrigin(0.5),
+      this.add
+        .text(0, 210, role, {
+          fontFamily: "gamefont2",
+          fontSize: 24,
+          color: "black",
+        })
+        .setOrigin(0.5),
     ]);
     {
       let rate = 240 / container.list[1].width;
       container.list[1].setScale(rate, rate);
     }
     {
-      let containerPic = this.add.container(0, 0, []);
       let picImg = this.add.image(0, 0, pic).setOrigin(0.5);
       let rate = 200 / picImg.width;
       picImg.setScale(rate, rate);
-      const maskGraphics = this.make.graphics();
-      maskGraphics.fillStyle(0xffffff);
-      maskGraphics.fillCircle(x, y, 100);
-      containerPic.add([maskGraphics, picImg]);
-      container.add(containerPic);
-      const mask = new Phaser.Display.Masks.BitmapMask(this, maskGraphics);
-      picImg.setMask(mask);
-      maskGraphics.setVisible(false)
+      container.add(picImg);
     }
   }
 }

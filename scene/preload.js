@@ -76,14 +76,11 @@ export default class Preloader extends Phaser.Scene {
 
     ///
     this.load.image("time-icon", "assets/time-icon.png");
-    this.load.image("curved-line", "assets/curved-line.png");
-    this.load.image("elipse-1", "assets/elipse-1.png");
-    this.load.image("elipse-2", "assets/elipse-2.png");
-    this.load.image("elipse-3", "assets/elipse-3.png");
+    this.load.image("curved-line", "assets/curved-line.png"); 
 
     this.load.image("pic_designer", "assets/pic_designer.png");
-    this.load.image("pic_product", "assets/pic_product.webp");
-    this.load.image("pic_developer", "assets/pic_developer.webp");
+    this.load.image("pic_leader", "assets/pic_leader.png");
+    this.load.image("pic_developer", "assets/pic_developer.png");
   }
   waitForWebFont() {
     return new Promise((resolve) => {
