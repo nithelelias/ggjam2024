@@ -81,8 +81,9 @@ export default class Intro extends Phaser.Scene {
     const div = document.createElement("div");
     div.classList.add("logo-intro");
     let isMobile = mobileCheck();
-    let h = Math.min(356, this.scale.height * (isMobile ? 0.3 : 0.5)),
-      w = h / 0.87; 
+    let h = 356,
+      w = h / 0.87;
+    //Math.min(356, this.scale.height * (isMobile ? 0.3 : 0.5)),
     const styles = {
       position: "fixed",
       top: isMobile ? "0px" : "20px",

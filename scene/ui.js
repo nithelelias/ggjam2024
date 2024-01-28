@@ -188,17 +188,12 @@ export default class UIScene extends Phaser.Scene {
       .setOrigin(0.5, 1);
 
     const title = this.add
-      .text(
-        0,
-        logo.y + logo.displayHeight / 4 + 8,
-        win ? "Felicidades" : "¿estas Triste?",
-        {
-          fontFamily: "gamefont",
-          fontSize: 64,
-          color: "#FF6669",
-        }
-      )
-      .setOrigin(0.5, 0);
+      .text(0, logo.y + 32, win ? "Felicidades" : "¿estas Triste?", {
+        fontFamily: "gamefont",
+        fontSize: 64,
+        color: "#FF6669",
+      })
+      .setOrigin(0.5);
     const main = this.scene.get("main");
     const prah = this.add
       .text(

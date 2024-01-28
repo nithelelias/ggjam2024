@@ -100,9 +100,9 @@ export default class Preloader extends Phaser.Scene {
     });
   }
   create() {
-    this.waitForWebFont().then(() => {
-     
+    this.waitForWebFont().then(() => { 
       setTimeout(() => {
+        this.scene.stop();
         this.scene.start("preintro");
       }, 500);
     });

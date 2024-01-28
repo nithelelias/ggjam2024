@@ -635,7 +635,7 @@ export default class Main extends Phaser.Scene {
     let total = this.level * 4;
     this.sound.get("whoo").play();
     this.sound.get("zoom-in").play();
-    let camscale = 2 - this.level * 0.5;
+    let camscale = { 1: 1.5, 2: .7, 3: .4 }[this.level]//2 - this.level * 0.5;
     this.cameras.main.zoomTo(camscale, 300);
     let dist = { 1: 150, 2: 360, 3: 700 }[this.level];
     {

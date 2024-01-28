@@ -15,6 +15,7 @@ export default class PreIntro extends Phaser.Scene {
       .setOrigin(0, 1);
 
     setTimeout(() => {
+      this.scene.stop();
       this.scene.start("intro");
     }, 500);
   }
