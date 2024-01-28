@@ -1,5 +1,5 @@
 import addButton from "../src/addButton.js";
-
+var intro_started = false;
 export default class Intro extends Phaser.Scene {
   constructor() {
     super("intro");
@@ -12,7 +12,15 @@ export default class Intro extends Phaser.Scene {
       .setDisplaySize(this.scale.width, this.scale.height);
 
     this.createLogoAnim();
-    this.sound.add("intro-logo").setVolume(.5).play()
+    this.showMenu();
+    if (!intro_started) {
+      intro_started = true;
+      let intro = this.sound.add("intro-logo")
+      intro.setVolume(0.25);
+      setTimeout(() => {
+        intro.play();
+      }, 600);
+    }
   }
   createLogoAnim() {
     const div = document.createElement("div");
@@ -34,7 +42,6 @@ export default class Intro extends Phaser.Scene {
     div.innerHTML = `<img src='assets/mouth-anim.png' width="${w}px"/>`;
     document.body.append(div);
 
-    this.showMenu();
     this.fondo.on("destroy", () => {
       div.remove();
     });
