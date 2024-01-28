@@ -22,7 +22,7 @@ export default class Instructions extends Phaser.Scene {
     const btn = addButton(
       this,
       48,
-      48,
+      20,
       "",
       ["btn_return", "btn_return"],
       () => {

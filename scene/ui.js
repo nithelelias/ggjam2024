@@ -22,6 +22,7 @@ export default class UIScene extends Phaser.Scene {
   startMain() {
     this.createProgressLevel();
     this.volumeControl();
+    this.exitControl();
     this.createLevelBoard();
     this.createTimeBoard();
     this.scene.bringToTop();
@@ -87,9 +88,9 @@ export default class UIScene extends Phaser.Scene {
   volumeControl() {
     const btn = addButton(
       this,
-      this.scale.width - 48,
-      48,
-      "on",
+      this.scale.width - 100,
+      20,
+      !this.sound.mute ? "on" : "off",
       ["btn_volume", "btn_volume"],
       () => {
         if (!this.sound.mute) {
@@ -101,7 +102,27 @@ export default class UIScene extends Phaser.Scene {
         this.sound.mute = !this.sound.mute;
       }
     );
-    btn.text.y = btn.bg.displayHeight;
+    btn.text.y += 5;
+
+    if (this.sound.mute) {
+      btn.bg.setTint(0xd1d1d1);
+    } else {
+      btn.bg.clearTint();
+    }
+  }
+  exitControl() {
+    const btn = addButton(
+      this,
+      this.scale.width - 48,
+      20,
+      "",
+      ["btn_close", "btn_close"],
+      () => {
+        const main = this.scene.get("main");
+        main.scene.stop();
+        this.scene.start("intro");
+      }
+    );
   }
   createProgressLevel() {
     let shadow = this.add
@@ -116,7 +137,7 @@ export default class UIScene extends Phaser.Scene {
     if (!this.progress) {
       return;
     }
-    let w = this.scale.width * (Math.max(.1, percentage) / 100);
+    let w = this.scale.width * (Math.max(0.1, percentage) / 100);
     this.progress.setDisplaySize(w, 32);
     let color = {
       1: 0x705afe,

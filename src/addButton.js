@@ -6,7 +6,7 @@ export default function addButton(
   [img_idle, img_press],
   onClick = () => null
 ) {
-  let btn = scene.add.image(0, 0, img_idle);
+  let btn = scene.add.image(0, 0, img_idle).setOrigin(0);
   btn.setInteractive({ cursor: `url("assets/cur_point.png"), grab` });
   let popsound = scene.sound.add("pop");
   btn.on("pointerdown", () => {
@@ -21,10 +21,10 @@ export default function addButton(
       btn.setScale(1);
     });
   });
-  let container = scene.add.container(x, y, [
+  let container = scene.add.container(x - btn.width / 2, y, [
     btn,
     scene.add
-      .text(0, 82, label, {
+      .text(btn.width / 2, btn.height + 4, label, {
         fontFamily: "gamefont",
         fontSize: 24,
         color: "#000000",
