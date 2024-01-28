@@ -42,12 +42,12 @@ function addLaughText(scene, x, y, text_laugh, color = "black", fontSize = 32) {
     color,
     fontFamily: "gamefont",
   });
-
+  laughText.setDepth(1000);
   return laughText;
 }
 
-function laughUp(scene, x, y, text_laugh) {
-  const laughText = addLaughText(scene, x, y, text_laugh, "black", 18);
+function laughUp(scene, x, y, text_laugh, color = "black", fontSize = 18) {
+  const laughText = addLaughText(scene, x, y, text_laugh, color, fontSize);
   laughText.setAlpha(0.3);
 
   scene.tweens.chain({
@@ -75,7 +75,15 @@ function laughUp(scene, x, y, text_laugh) {
   });
 }
 
-function shotLaugh(scene, from, text_laugh, dist = 200, color, fontSize) {
+function shotLaugh(
+  scene,
+  from,
+  text_laugh,
+  dist = 200,
+  color,
+  fontSize,
+  max_duration = 600
+) {
   const laugh_shot = addLaughText(
     scene,
     from.x,
@@ -102,7 +110,7 @@ function shotLaugh(scene, from, text_laugh, dist = 200, color, fontSize) {
         x: from.x + vel.x * 0.98,
         y: from.y + vel.y * 0.98,
         ease: "quintIn",
-        duration: 300,
+        duration: max_duration * 0.6,
       },
       {
         x: from.x + vel.x,
@@ -110,7 +118,7 @@ function shotLaugh(scene, from, text_laugh, dist = 200, color, fontSize) {
         scale: 0.1,
         alpha: 0,
         ease: "sineInOut",
-        duration: 300,
+        duration: max_duration * 0.4,
       },
     ],
     onComplete: () => {
@@ -131,24 +139,40 @@ class Personaje extends Phaser.GameObjects.Container {
     scene.add.existing(this);
 
     this.sprite = scene.add.container(0, 0, [
-      scene.add.circle(0, 0, 80, 0x0055ba).setScale(0.6).setAlpha(0),
-      scene.add.image(0, 0, "body").setScale(0.5),
-      scene.add.image(0, 0, "face1").setScale(0.5),
+      scene.add.rectangle(0, 0, 80, 100, 0x0055ba).setAlpha(0.01),
+      scene.add.image(0, 40, "foots").setScale(0.5),
+      scene.add.image(0, 0, "body-" + random(1, 4)),
+      scene.add.image(0, -10, "face1").setScale(0.4),
     ]);
     this.sprite.bordercircle = this.sprite.list[0];
-    this.sprite.body = this.sprite.list[1];
-    this.sprite.face = this.sprite.list[2];
-
+    this.sprite.body = this.sprite.list[2];
+    this.sprite.face = this.sprite.list[3];
+    let rate = 80 / this.sprite.body.width;
+    this.sprite.body.setScale(rate, rate);
+    /* this.sprite.body.fxShadow = this.sprite.body.preFX.addShadow(
+      0,
+      0,
+      0.016,
+      16,
+      0x333333,
+      30
+    ); */
     this.add([this.sprite]);
-    this.setSize(80, 80);
+    this.setSize(this.sprite.body.displayWidth, this.sprite.body.displayHeight);
     this.setInteractive({ cursor: `url("assets/cur_point.png"), grab` });
     this.scene.input.setDraggable(this);
-
+    this.setDepth(this.y + 50);
     this.on("pointerdown", (pointer) => {
       if (this.isNegative) {
-        laughUp(this.scene, this.x, this.y, "No");
+        laughUp(this.scene, this.x, this.y, "No","red");
         return;
       }
+      this.setScale(1.05);
+      this.setDepth(5000);
+      this.scene.input.once("pointerup", () => {
+        this.setScale(1);
+        this.setDepth(this.y + 50);
+      });
       //this.scene.input.setDefaultCursor(`url("assets/cur_grab.png"), grab`);
       this.scene.input.manager.setCursor({
         cursor: 'url("assets/cur_grab.png"), grab',
@@ -164,18 +188,22 @@ class Personaje extends Phaser.GameObjects.Container {
   }
   setAsNegative() {
     this.isNegative = true;
-    this.sprite.bordercircle.setAlpha(1);
-    window.test = this;
+    //this.sprite.bordercircle.setAlpha(1);
     this.laughlevel = -50;
     this.scene.input.setDraggable(this, false);
     this.setScale(1.5);
+    this.sprite.body.setTexture("body-sad");
+    setTimeout(() => {
+      let rate = 80 / this.sprite.body.width;
+      this.sprite.body.setScale(rate, rate);
+    }, 10);
   }
 
   thikcle_animation() {
     if (this.busy.thickle) {
       return;
     }
-
+    laughUp(this.scene, this.x, this.y, "thickle", "0x333333", 12);
     this.busy.thickle = true;
     let vel = 2;
     this.scene.tweens.chain({
@@ -286,7 +314,7 @@ class Personaje extends Phaser.GameObjects.Container {
       return;
     }
     this.busy.shotting_negative = true;
-    let shottext = shotLaugh(this.scene, this, getBadWord(), 200, "#fc6769");
+    let shottext = shotLaugh(this.scene, this, getBadWord(), 200, "#fc6769",24,2000);
     shottext.is_negative = true;
     setTimeout(() => {
       this.busy.shotting_negative = false;
@@ -314,10 +342,12 @@ class Personaje extends Phaser.GameObjects.Container {
     }
 
     this.sprite.face.setTexture(t_name);
-    if (this.laughlevel < 0) {
-      this.sprite.body.setTexture("body-sad");
-    } else {
-      this.sprite.body.setTexture("body");
+    if (this.isNegative) {
+      if (this.laughlevel > 80) {
+        this.sprite.body.setTexture("body");
+      } else {
+        this.sprite.body.setTexture("body-sad");
+      }
     }
   }
   update() {
@@ -349,6 +379,7 @@ export default class Main extends Phaser.Scene {
       key: "main",
       physics: {
         arcade: {
+          debug: false,
           gravity: { y: 0 },
         },
         matter: {
@@ -497,15 +528,18 @@ export default class Main extends Phaser.Scene {
 
     let camscale = 2 - this.level * 0.5;
     this.cameras.main.zoomTo(camscale, 300);
-    let dist = 130 * this.level;
-
-    for (let i = 0; i < total; i++) {
-      let angle = Phaser.Math.Angle.RandomDegrees();
-      let vel = this.physics.velocityFromAngle(
-        angle,
-        random(dist - 20, dist + 20)
-      );
-      this.addPersonaje(this.center.x + vel.x, this.center.y + vel.y);
+    let dist = { 1: 150, 2: 400, 3: 700 }[this.level];
+    {
+      let angle = 0;
+      let gap_ang = 360 / total;
+      for (let i = 0; i < total; i++) {
+        angle += gap_ang;
+        let vel = this.physics.velocityFromAngle(
+          angle,
+          random(dist - 20, dist + 20)
+        );
+        this.addPersonaje(this.center.x + vel.x, this.center.y + vel.y);
+      }
     }
 
     if (this.level === 1) {
@@ -519,7 +553,7 @@ export default class Main extends Phaser.Scene {
       this.addPersonaje(this.center.x - dist, this.center.y).setAsNegative();
     }
     if (this.level === 3) {
-      let dist = 400;
+      let dist = 500;
       let total_bad = 8;
       let angle = 0;
       for (let i = 0; i < total_bad; i++) {

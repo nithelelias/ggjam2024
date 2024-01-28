@@ -11,8 +11,11 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #fff;
+  background-color: #d1d1d1;
   box-sizing: border-box;
+}
+canvas{
+
   background-image: url(assets/fondo.png);
   background-repeat: repeat;
 }

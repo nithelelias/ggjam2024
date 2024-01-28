@@ -1,6 +1,5 @@
-import { COLORS } from "../constants.js";
-import customCursor from "../src/customCursor.js";
-import textControlButton from "../src/textControlButton.js";
+import addButton from "../src/addButton.js";
+import checkLandScape from "../src/checkLandScape.js";
 
 export default class UIScene extends Phaser.Scene {
   constructor() {
@@ -15,6 +14,12 @@ export default class UIScene extends Phaser.Scene {
     this.input.setDefaultCursor(`url("assets/cur_hand.png"), grab`);
     window.ui = this;
     //  customCursor(this);
+    checkLandScape(this.game, () => {
+      console.log("landscape good");
+      setTimeout(() => {
+        window.scrollTo(0, -100);
+      }, 100);
+    });
   }
   startMain() {
     this.createProgressLevel();
@@ -77,23 +82,27 @@ export default class UIScene extends Phaser.Scene {
     this.timeText.update();
   }
   volumeControl() {
-    let getVolumeIcon = (v) => (v ? `🔇` : `🔈`);
-    let control = textControlButton(
+    const btn = addButton(
       this,
-      this.scale.width - 32,
-      20,
-      getVolumeIcon(this.sound.mute),
+      this.scale.width - 48,
+      48,
+      "on",
+      ["btn_volume", "btn_volume"],
       () => {
+        if (!this.sound.mute) {
+          btn.bg.setTint(0xd1d1d1);
+        } else {
+          btn.bg.clearTint();
+        }
+        btn.text.setText(!this.sound.mute ? "off" : "on");
         this.sound.mute = !this.sound.mute;
-
-        control.text.setText(getVolumeIcon(!this.sound.mute));
-        return;
       }
     );
+    btn.text.y = btn.bg.displayHeight;
   }
   createProgressLevel() {
     this.add
-      .rectangle(0, this.scale.height, this.scale.width, 32, 0xf1cc30,.4)
+      .rectangle(0, this.scale.height, this.scale.width, 32, 0xf1cc30, 0.4)
       .setOrigin(0, 1);
     this.progress = this.add
       .rectangle(0, this.scale.height, 32, 32, 0xf1cc30)
@@ -133,11 +142,20 @@ export default class UIScene extends Phaser.Scene {
         color: "black",
       })
       .setOrigin(0.5, 0);
-
+    const btn = addButton(
+      this,
+      bg.displayWidth / 2 - 48,
+      -bg.displayHeight / 2 + 48,
+      "",
+      ["btn_close", "btn_close"],
+      () => {
+        window.location.reload();
+      }
+    );
     let container = this.add.container(
       this.scale.width / 2,
       this.scale.height / 2,
-      [bg, logo, title, prah]
+      [bg, logo, title, prah, btn]
     );
     this.tweens.add({
       targets: container,
@@ -146,7 +164,6 @@ export default class UIScene extends Phaser.Scene {
       duration: 600,
       ease: "bounceOut",
     });
-
   }
   update() {
     const main = this.scene.get("main");

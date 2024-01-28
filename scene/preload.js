@@ -39,6 +39,11 @@ export default class Preloader extends Phaser.Scene {
 
     this.load.image("body", "assets/body.png");
     this.load.image("body-sad", "assets/body-sad.png");
+    this.load.image("body-1", "assets/body1.png");
+    this.load.image("body-2", "assets/body2.png");
+    this.load.image("body-3", "assets/body3.png");
+    this.load.image("body-4", "assets/body4.png");
+    this.load.image("foots", "assets/foots.png");
     this.load.image("par1", "assets/par-1.png");
     this.load.image("par2", "assets/par-2.png");
     this.load.image("par3", "assets/par-3.png");
@@ -52,6 +57,9 @@ export default class Preloader extends Phaser.Scene {
     this.load.image("btn_info_press", "assets/btn_info_press.png");
     this.load.image("btn_credits", "assets/btn_credits.png");
     this.load.image("btn_credits_press", "assets/btn_credits_press.png");
+    this.load.image("btn_volume", "assets/btn_volume.png");
+    this.load.image("btn_close", "assets/btn_close.png");
+    this.load.image("btn_return", "assets/btn_return.png");
     this.load.image("final-modal", "assets/final-modal.png");
 
     ///
@@ -59,6 +67,16 @@ export default class Preloader extends Phaser.Scene {
     this.load.image("cursor_pointer", "assets/cur_point.png");
     this.load.image("cursor_press", "assets/cur_press.png");
     this.load.image("cursor_grab", "assets/cur_grab.png");
+
+    ///
+    this.load.image("curved-line", "assets/curved-line.png");
+    this.load.image("elipse-1", "assets/elipse-1.png");
+    this.load.image("elipse-2", "assets/elipse-2.png");
+    this.load.image("elipse-3", "assets/elipse-3.png");
+
+    this.load.image("pic_designer", "assets/pic_designer.png");
+    this.load.image("pic_product", "assets/pic_product.webp");
+    this.load.image("pic_developer", "assets/pic_developer.webp");
   }
   waitForWebFont() {
     return new Promise((resolve) => {
