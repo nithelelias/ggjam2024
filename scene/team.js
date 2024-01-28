@@ -54,24 +54,20 @@ export default class Team extends Phaser.Scene {
 
       this.add
         .text(0, 160, name, {
-          fontFamily: "gamefont2",
-          fontSize: 32,
+          fontFamily: "gamefont",
+          fontSize: 30,
           color: { 1: "#9747FF", 2: "#F229B8", 3: "#1889DF" }[colorId],
         })
         .setOrigin(0.5),
       this.add
         .text(0, 210, role, {
           fontFamily: "gamefont2",
-          fontSize: 24,
+          fontSize: 30,
           color: "black",
         })
         .setOrigin(0.5),
     ]);
 
-    {
-      let rate = 240 / container.list[1].width;
-      container.list[1].setScale(rate, rate);
-    }
     {
       let picImg = this.add.image(0, 0, pic).setOrigin(0.5);
       let rate = 200 / picImg.width;

@@ -25,7 +25,32 @@ export default class UIScene extends Phaser.Scene {
     this.exitControl();
     this.createLevelBoard();
     this.createTimeBoard();
+    this.createScoreInfo();
     this.scene.bringToTop();
+  }
+  createScoreInfo(sc) {
+    let container = this.add.container(this.scale.width / 2, 48, []);
+    let label = this.add
+      .text(0, 0, "Puntaje: ", {
+        fontFamily: "gamefont2",
+        color: "#000000",
+        fontSize: 42,
+      })
+      .setOrigin(0, 0.5);
+    label.x -= label.width / 2;
+    this.scoreText = this.add
+      .text(label.x + label.width + 4, label.y, "0", {
+        fontFamily: "gamefont",
+        color: "#00d745",
+        fontSize: 42,
+      })
+      .setOrigin(0, 0.5);
+    this.scoreText.setScrollFactor(0);
+
+    this.scoreText.update = (score) => {
+      this.scoreText.setText(Math.max(0, score));
+    };
+    container.add([label, this.scoreText]);
   }
   createLevelBoard() {
     let bg = this.add.image(0, 20, "uiboard").setOrigin(0).setScale(0.8);
@@ -174,14 +199,17 @@ export default class UIScene extends Phaser.Scene {
         }
       )
       .setOrigin(0.5, 0);
-
+    const main = this.scene.get("main");
     const prah = this.add
       .text(
         0,
         title.y + title.height + 8,
         win
-          ? "¡Contagiaste a todos de  risa!"
-          : "¡Seguro que para la proxima lo logras!",
+          ? [
+              "¡Contagiaste a todos de  risa!",
+              "y obtuviste " + main.score + " Puntos",
+            ]
+          : ["¡Seguro que para la proxima lo logras!"],
         {
           fontFamily: "gamefont2",
           fontSize: 32,
@@ -221,5 +249,6 @@ export default class UIScene extends Phaser.Scene {
     this.updateProgressLevel(main.level, main.laughPercentage);
     this.levelText.update(main.level);
     this.timeText.update(main.level);
+    this.scoreText.update(main.score);
   }
 }

@@ -50,6 +50,8 @@ export default class Instructions extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
+    title.setTintFill(0x0d8afc, 0x0d8afc, 0x9747ff, 0x9747ff);
+
     this.add
       .text(
         this.center.x,

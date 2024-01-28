@@ -71,7 +71,6 @@ export default class Preloader extends Phaser.Scene {
     ///
     this.load.image("cursor_default", "assets/cur_hand.png");
     this.load.image("cursor_pointer", "assets/cur_point.png");
-    this.load.image("cursor_press", "assets/cur_press.png");
     this.load.image("cursor_grab", "assets/cur_grab.png");
 
     ///

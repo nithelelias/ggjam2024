@@ -335,7 +335,7 @@ export class Personaje extends Phaser.GameObjects.Container {
   }
   catchLaugh(intensiti = 1) {
     if (this.busy.catched_laugh) {
-      return;
+      return false;
     }
     this.busy.catched_laugh = true;
     if (this.isNegative) {
@@ -350,6 +350,7 @@ export class Personaje extends Phaser.GameObjects.Container {
     setTimeout(() => {
       this.busy.catched_laugh = false;
     }, random(100, 500));
+    return true;
   }
   catchNegative(intensiti = 1) {
     this.happyLevel -= intensiti;
@@ -358,6 +359,7 @@ export class Personaje extends Phaser.GameObjects.Container {
   reduceHappyLevel() {
     this.coeRedLaug = Math.max(0, this.coeRedLaug - 0.0001);
     let redLaugh = Math.min(1, 1 - this.coeRedLaug);
+
     this.happyLevel -= redLaugh;
   }
   doShotLaugh() {
@@ -427,9 +429,13 @@ export class Personaje extends Phaser.GameObjects.Container {
     }
   }
   limitHappyLevel() {
-    if (this.happyLevel < -50) {
+    if (this.isNegative && this.happyLevel < -50) {
       this.happyLevel = -50;
     }
+    if (!this.isNegative && this.happyLevel < 0) {
+      this.happyLevel = 0;
+    }
+
     if (this.happyLevel > 100) {
       this.happyLevel = 100;
     }
@@ -452,7 +458,12 @@ export class Personaje extends Phaser.GameObjects.Container {
 export default class Main extends Phaser.Scene {
   laughPercentage = 0;
   level = 0;
+  score = 0;
   gameEnd = false;
+  waitingTolose = {
+    time: 0,
+    start: false,
+  };
   constructor() {
     super({
       key: "main",
@@ -470,6 +481,9 @@ export default class Main extends Phaser.Scene {
   }
   create() {
     this.gameEnd = false;
+    this.score = 0;
+    this.waitingTolose.time = 0;
+    this.waitingTolose.start = false;
     const ui = this.scene.get("ui");
     ui.startMain();
     this.level = 0;
@@ -496,11 +510,14 @@ export default class Main extends Phaser.Scene {
           return;
         }
         if (shot.is_negative) {
-          personaje.catchNegative(10);
+          personaje.catchNegative(6);
           shot.destroy();
+          this.score -= 2;
           return;
         }
-        personaje.catchLaugh(25);
+        if (personaje.catchLaugh(25)) {
+          this.score += 7;
+        }
 
         return;
       },
@@ -693,6 +710,7 @@ export default class Main extends Phaser.Scene {
       );
     }
   }
+
   winScreen() {
     this.gameEnd = true;
     this.cameras.main.zoomTo(1, 300);
@@ -702,6 +720,23 @@ export default class Main extends Phaser.Scene {
     setTimeout(() => {
       this.scene.pause();
     }, 10000);
+  }
+  validateIfLoseAfter3s() {
+    if (this.laughPercentage < -9) {
+      if (this.waitingTolose.start) {
+        let seconds = Date.now() - this.waitingTolose.time;
+
+        if (seconds >= 3000) {
+          this.doLose();
+        }
+      } else {
+        this.waitingTolose.start = true;
+        this.waitingTolose.time = Date.now();
+      }
+    } else {
+      this.waitingTolose.start = false;
+      this.waitingTolose.time = 0;
+    }
   }
   doLose() {
     this.gameEnd = true;
@@ -721,8 +756,6 @@ export default class Main extends Phaser.Scene {
     if (this.laughPercentage > 100) {
       this.nextLevel();
     }
-    if (this.laughPercentage < -20) {
-      this.doLose();
-    }
+    this.validateIfLoseAfter3s();
   }
 }
