@@ -14,7 +14,7 @@ export default class Preloader extends Phaser.Scene {
       0
     );
     element.sheet.insertRule(
-      `@font-face { font-family: "gamefont2"; src: url("assets/gamefont-2.ttf") format("truetype"); }
+      `@font-face { font-family: "gamefont2"; src: url("assets/gamefont.ttf") format("truetype"); }
       `,
       0
     );

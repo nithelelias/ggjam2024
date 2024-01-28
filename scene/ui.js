@@ -101,19 +101,27 @@ export default class UIScene extends Phaser.Scene {
     btn.text.y = btn.bg.displayHeight;
   }
   createProgressLevel() {
-    this.add
+    let shadow = this.add
       .rectangle(0, this.scale.height, this.scale.width, 32, 0xf1cc30, 0.4)
       .setOrigin(0, 1);
     this.progress = this.add
       .rectangle(0, this.scale.height, 32, 32, 0xf1cc30)
       .setOrigin(0, 1);
+    this.progress.shadow = shadow;
   }
-  updateProgressLevel(percentage) {
+  updateProgressLevel(level, percentage) {
     if (!this.progress) {
       return;
     }
     let w = this.scale.width * (Math.max(1, percentage) / 100);
     this.progress.setDisplaySize(w, 32);
+    let color = {
+      1: 0x705afe,
+      2: 0xae1ac1,
+      3: 0x1889df,
+    }[level];
+    this.progress.setFillStyle(color, 1);
+    this.progress.shadow.setFillStyle(color, 0.4);
   }
   finalScreen(win = true) {
     this.timeText.stop();
@@ -183,7 +191,7 @@ export default class UIScene extends Phaser.Scene {
     if (!main.scene.isActive()) {
       return;
     }
-    this.updateProgressLevel(main.laughPercentage);
+    this.updateProgressLevel(main.level, main.laughPercentage);
     this.levelText.update(main.level);
     this.timeText.update(main.level);
   }
