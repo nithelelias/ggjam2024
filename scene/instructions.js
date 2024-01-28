@@ -22,7 +22,7 @@ export default class Instructions extends Phaser.Scene {
     const btn = addButton(
       this,
       48,
-      20,
+      48,
       "",
       ["btn_return", "btn_return"],
       () => {
@@ -30,23 +30,36 @@ export default class Instructions extends Phaser.Scene {
         this.scene.start("intro");
       }
     );
+    this.center = {
+      x: this.scale.width / 2,
+      y: this.scale.height / 2,
+    };
 
     this.add
-      .image(this.scale.width / 2, this.scale.height - 60, "curved-line")
-      .setOrigin(0.5, 1);
+      .image(-20, this.scale.height - 90, "curved-line")
+      .setOrigin(0, 1)
+      .setAngle(8);
 
     let title = this.add
+      .text(this.center.x, 120, ["¿Tu Misión?"], {
+        fontFamily: "gamefont2",
+        fontSize: 64,
+        lineSpacing: 70,
+        color: "#9747FF",
+        margin: "center",
+      })
+      .setOrigin(0.5);
+
+    this.add
       .text(
-        this.scale.width / 2,
-        this.scale.height * 0.15,
-        [
-          "Tu mision es CONTAGIAR DE RISA a los personajes que no se encuentran tan alegres.",
-        ],
+        this.center.x,
+        200,
+        ["Contagiar de risa a los personajes que no se encuentran alegres"],
         {
           fontFamily: "gamefont2",
-          fontSize: 32,
+          fontSize: 28,
           lineSpacing: 34,
-          color: "black",
+          color: "#000000",
           margin: "center",
         }
       )
@@ -54,14 +67,14 @@ export default class Instructions extends Phaser.Scene {
 
     this.helpText = this.add
       .text(
-        this.scale.width / 2,
-        this.scale.height * 0.35,
+        this.center.x,
+        this.center.y,
         ["Puedes arrastrar algunos personajes"],
         {
           fontFamily: "gamefont2",
           fontSize: 32,
           lineSpacing: 34,
-          color: "black",
+          color: "#1570D7",
           align: "center",
         }
       )
@@ -126,7 +139,7 @@ export default class Instructions extends Phaser.Scene {
     p1._audio_ids = ["laugh1", "laugh2", "laugh3"];
     let p2 = new Personaje(this, center.x + gap, bottom);
     p2._audio_ids = ["laugh4", "laugh5", "laugh6"];
-    p2.setHappyLevel(20)
+    p2.setHappyLevel(20);
     p1.setAsNegative();
     p2.setAsInteractive();
     window.pjs = [p1, p2];
@@ -172,7 +185,7 @@ export default class Instructions extends Phaser.Scene {
     });
     let timeEvent = this.time.addEvent({
       delay: 60,
-      callback: () => { 
+      callback: () => {
         if (this.helpText.state === 2 && p2.happyLevel > 10) {
           this.helpText.next();
           timeEvent.destroy();

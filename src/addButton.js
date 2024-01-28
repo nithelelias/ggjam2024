@@ -6,13 +6,28 @@ export default function addButton(
   [img_idle, img_press],
   onClick = () => null
 ) {
-  let btn = scene.add.image(0, 0, img_idle).setOrigin(0);
-  btn.setInteractive({ cursor: `url("assets/cur_point.png"), grab` });
   let popsound = scene.sound.add("pop");
-  btn.on("pointerdown", () => {
+  let btn = scene.add.image(0, 0, img_idle);
+  let size = [btn.displayWidth * 1.2, btn.displayHeight * 1.2];
+  let container = scene.add.container(x, y, [
+    scene.add.rectangle(0, 0, size[0], size[1], 0xffffff, 0),
+    btn,
+    scene.add.text(0, size[1]*.6, label, {
+      fontFamily: "gamefont",
+      fontSize: 24,
+      color: "#000000",
+    }).setOrigin(.5),
+  ]);
+  container.bg = container.list[1];
+  container.text = container.list[2];
+  container.setSize(size[0], size[1]);
+
+  container.setInteractive({ cursor: `url("assets/cur_point.png"), grab` });
+
+  container.on("pointerdown", () => {
     btn.setTexture(img_press);
     btn.setScale(0.98);
-    btn.once("pointerup", () => {
+    container.once("pointerup", () => {
       popsound.play();
       onClick();
     });
@@ -21,17 +36,5 @@ export default function addButton(
       btn.setScale(1);
     });
   });
-  let container = scene.add.container(x - btn.width / 2, y, [
-    btn,
-    scene.add
-      .text(btn.width / 2, btn.height + 4, label, {
-        fontFamily: "gamefont",
-        fontSize: 24,
-        color: "#000000",
-      })
-      .setOrigin(0.5),
-  ]);
-  container.bg = container.list[0];
-  container.text = container.list[1];
   return container;
 }

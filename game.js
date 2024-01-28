@@ -20,9 +20,8 @@ const config = {
   },
   physics: {
     default: "arcade",
-    matter: {
+    arcade: {
       debug: true,
-      gravity: { y: 0.5 },
     },
   },
   scene: [Preloader, Intro, UIScene, Main, Instructions, Team],

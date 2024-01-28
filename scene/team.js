@@ -8,7 +8,7 @@ export default class Team extends Phaser.Scene {
     const btn = addButton(
       this,
       48,
-      20,
+      48,
       "",
       ["btn_return", "btn_return"],
       () => {
@@ -36,7 +36,7 @@ export default class Team extends Phaser.Scene {
       bottom,
       2,
       "pic_leader",
-      "ANdrea Vargas",
+      "Andrea Vargas",
       "Lider equipo"
     );
     this.addTeamMenberContainer(
@@ -67,6 +67,7 @@ export default class Team extends Phaser.Scene {
         })
         .setOrigin(0.5),
     ]);
+
     {
       let rate = 240 / container.list[1].width;
       container.list[1].setScale(rate, rate);
@@ -77,5 +78,19 @@ export default class Team extends Phaser.Scene {
       picImg.setScale(rate, rate);
       container.add(picImg);
     }
+    container.setAlpha(0);
+    container.setScale(0);
+    this.tweens.add({
+      targets: container,
+      duration: 300,
+      scale: 1,
+      alpha: 1,
+      ease: "bounce.out",
+      easeParams: [3, 2],
+      delay: 100 * colorId,
+      onComplete: () => {
+        this.sound.add("pop").play();
+      },
+    });
   }
 }

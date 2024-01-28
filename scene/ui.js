@@ -89,7 +89,7 @@ export default class UIScene extends Phaser.Scene {
     const btn = addButton(
       this,
       this.scale.width - 100,
-      20,
+      48,
       !this.sound.mute ? "on" : "off",
       ["btn_volume", "btn_volume"],
       () => {
@@ -114,7 +114,7 @@ export default class UIScene extends Phaser.Scene {
     const btn = addButton(
       this,
       this.scale.width - 48,
-      20,
+      48,
       "",
       ["btn_close", "btn_close"],
       () => {

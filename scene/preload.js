@@ -14,7 +14,7 @@ export default class Preloader extends Phaser.Scene {
       0
     );
     element.sheet.insertRule(
-      `@font-face { font-family: "gamefont2"; src: url("assets/gamefont.ttf") format("truetype"); }
+      `@font-face { font-family: "gamefont2"; src: url("assets/gamefont2.otf") format("truetype"); }
       `,
       0
     );
@@ -29,6 +29,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.audio("pop", "assets/pop.mp3");
     this.load.audio("grab", "assets/grab.mp3");
     this.load.audio("drop", "assets/drop.mp3");
+    this.load.audio("intro-logo", "assets/intro-logo.mp3");
     //////// audios ---|
 
     this.load.image("happy1", "assets/happy1.png");
@@ -72,15 +73,17 @@ export default class Preloader extends Phaser.Scene {
     this.load.image("cursor_pointer", "assets/cur_point.png");
     this.load.image("cursor_press", "assets/cur_press.png");
     this.load.image("cursor_grab", "assets/cur_grab.png");
-    
 
     ///
     this.load.image("time-icon", "assets/time-icon.png");
-    this.load.image("curved-line", "assets/curved-line.png"); 
+    this.load.image("curved-line", "assets/curved-line.png");
 
     this.load.image("pic_designer", "assets/pic_designer.png");
     this.load.image("pic_leader", "assets/pic_leader.png");
     this.load.image("pic_developer", "assets/pic_developer.png");
+    ///
+
+    this.load.image("mouth-anim", "assets/mouth-anim.png");
   }
   waitForWebFont() {
     return new Promise((resolve) => {

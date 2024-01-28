@@ -50,7 +50,10 @@ function addLaughText(scene, x, y, text_laugh, color = "black", fontSize = 32) {
 function laughUp(scene, x, y, text_laugh, color = "black", fontSize = 18) {
   const laughText = addLaughText(scene, x, y, text_laugh, color, fontSize);
   laughText.setAlpha(0.3);
-
+  let durations = {
+    1: random(300, 500),
+    2: random(300, 500),
+  };
   scene.tweens.chain({
     targets: laughText,
     tweens: [
@@ -59,7 +62,9 @@ function laughUp(scene, x, y, text_laugh, color = "black", fontSize = 18) {
         x: x + random(-30, 30),
         alpha: 1,
         ease: "quint.out",
-        duration: random(300, 500),
+
+        duration: durations[1],
+
         hold: 100,
       },
       {
@@ -67,9 +72,11 @@ function laughUp(scene, x, y, text_laugh, color = "black", fontSize = 18) {
         x: x + random(-20, 20),
         alpha: 0,
         ease: "sine.inout",
-        duration: random(300, 500),
+
+        duration: durations[2],
       },
     ],
+
     onComplete: () => {
       laughText.destroy();
     },
@@ -613,7 +620,7 @@ export default class Main extends Phaser.Scene {
     this.sound.get("zoom-in").play();
     let camscale = 2 - this.level * 0.5;
     this.cameras.main.zoomTo(camscale, 300);
-    let dist = { 1: 150, 2: 400, 3: 700 }[this.level];
+    let dist = { 1: 150, 2: 360, 3: 700 }[this.level];
     {
       let angle = 0;
       let gap_ang = 360 / total;

@@ -6,89 +6,40 @@ export default class Intro extends Phaser.Scene {
   }
   create() {
     this.scene.launch("ui");
-    this.add
+    this.fondo = this.add
       .image(0, 0, "home")
       .setOrigin(0)
       .setDisplaySize(this.scale.width, this.scale.height);
 
-    const logo = this.add
-      .image(this.scale.width * 0.5, this.scale.height * 0.4, "logo")
-      .setOrigin(0.5)
-      .setScale(0.2);
-    this.tweens.chain({
-      targets: logo,
-      tweens: [
-        {
-          scale: 1,
-          ease: "bounce.out",
-          easeParams: [3, 2],
-          duration: 600,
-        },
-
-        {
-          scale: 1,
-          angle: 0,
-          y: this.scale.height * 0.4,
-          ease: "sine.inout",
-          duration: 300,
-        },
-      ],
-      onComplete: () => {
-       
-      },
-    }); this.showMenu();
-    /*    this.tweens.chain({
-      targets: logo,
-      tweens: [
-        {
-          scale: 1,
-          ease: "back.InOut",
-          angle: -35,
-          easeParams: [3, 2],
-          duration: 600,
-        },
-        {
-          scale: 1.2,
-          angle: -15,
-          y: "-=30",
-          ease: "sine.inout",
-          duration: 300,
-        },
-        {
-          scale: 1,
-          angle: -5,
-          y: "+=50",
-          ease: "sine.inout",
-          duration: 300,
-        },
-
-        {
-          scale: 1,
-          angle: -1,
-          y: "-=25",
-          ease: "sine.inout",
-          duration: 300,
-        },
-        {
-          scale: 1,
-          angle: 0,
-          y: "+=25",
-          ease: "sine.inout",
-          duration: 300,
-        },
-        {
-          scale: 1,
-          angle: 0,
-          y: this.scale.height * 0.4,
-          ease: "sine.inout",
-          duration: 300,
-        },
-      ],
-      onComplete: () => {
-        this.showMenu();
-      },
-    }); */
+    this.createLogoAnim();
+    this.sound.add("intro-logo").setVolume(.5).play()
   }
+  createLogoAnim() {
+    const div = document.createElement("div");
+    div.classList.add("logo-intro");
+    let w = 408,
+      h = 356;
+    const styles = {
+      position: "fixed",
+      top: "20px",
+      left: `calc(50% - ${w / 2}px)`,
+      zIndex: 99999,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    };
+    for (let key in styles) {
+      div.style[key] = styles[key];
+    }
+    div.innerHTML = `<img src='assets/mouth-anim.png' width="${w}px"/>`;
+    document.body.append(div);
+
+    this.showMenu();
+    this.fondo.on("destroy", () => {
+      div.remove();
+    });
+  }
+
   showMenu() {
     let gap = 280;
     let container = this.add.container(
