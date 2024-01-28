@@ -235,7 +235,7 @@ export class Personaje extends Phaser.GameObjects.Container {
     });
     return this;
   }
-  doThickle() { 
+  doThickle() {
     if (!this.thikcle_animation()) {
       return false;
     }
@@ -248,10 +248,12 @@ export class Personaje extends Phaser.GameObjects.Container {
     //this.sprite.bordercircle.setAlpha(1);
     this.setHappyLevel(-50);
     this.setScale(1.5);
+
     this.sprite.body.setTexture("body-sad");
     setTimeout(() => {
       let rate = 80 / this.sprite.body.width;
       this.sprite.body.setScale(rate, rate);
+      this.sprite.face.y = 4;
     }, 10);
   }
 
