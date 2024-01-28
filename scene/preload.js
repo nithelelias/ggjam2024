@@ -24,7 +24,8 @@ export default class Preloader extends Phaser.Scene {
     for (let i = 1; i <= TOTAL_SOUND_LAUGHS; i++) {
       this.load.audio("laugh" + i, "assets/laugh" + i + ".mp3");
     }
-
+    this.load.audio("whoo", "assets/whoo.mp3");
+    this.load.audio("zoom-in", "assets/zoom-in.mp3");
     //////// audios ---|
 
     this.load.image("happy1", "assets/happy1.png");

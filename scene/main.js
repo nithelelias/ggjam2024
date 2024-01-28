@@ -1,4 +1,5 @@
 import { COLORS, TOTAL_SOUND_LAUGHS } from "../constants.js";
+import hitAnimationFn from "../src/hitAnimation.js";
 const laughs = ["JI", "JA", "LOL"];
 const emojisLaughs = ["😝", "😂", "🤣"];
 let temp_id_ite = 0;
@@ -128,7 +129,7 @@ function shotLaugh(
   return laugh_shot;
 }
 
-class Personaje extends Phaser.GameObjects.Container {
+export class Personaje extends Phaser.GameObjects.Container {
   laughlevel = 0;
   busy = { thickle: false, laughing: false, laugh_text: false };
   isNegative = false;
@@ -160,6 +161,8 @@ class Personaje extends Phaser.GameObjects.Container {
     this.setDepth(this.y + 50);
     this.add([this.sprite]);
     this.setSize(this.sprite.body.displayWidth, this.sprite.body.displayHeight);
+
+    this.hitAnimation = hitAnimationFn(this.sprite.body);
   }
   setAsInteractive() {
     this.setInteractive({ cursor: `url("assets/cur_point.png"), grab` });
@@ -277,6 +280,9 @@ class Personaje extends Phaser.GameObjects.Container {
     this.busy.catched_laugh = true;
     if (this.isNegative) {
       this.laughing(intensiti / 10);
+      if (this.laughlevel < 80) {
+        this.hitAnimation({ x: 2, y: 0 });
+      }
     } else {
       this.laughing(intensiti);
     }
@@ -287,6 +293,7 @@ class Personaje extends Phaser.GameObjects.Container {
   }
   catchNegative(intensiti) {
     this.laughlevel -= intensiti;
+    this.hitAnimation({ x: 4, y: 0 });
   }
   reduceLaughLevel() {
     this.coeRedLaug = Math.max(0, this.coeRedLaug - 0.0001);
@@ -311,8 +318,8 @@ class Personaje extends Phaser.GameObjects.Container {
     }
   }
   doShotNegative() {
-    if (this.laughlevel > 20) {
-      //  return;
+    if (this.laughlevel > 80) {
+      return;
     }
     if (this.busy.shotting_negative) {
       return;
@@ -451,6 +458,8 @@ export default class Main extends Phaser.Scene {
     for (let i = 1; i <= TOTAL_SOUND_LAUGHS; i++) {
       this.sound.add("laugh" + i);
     }
+    this.sound.add("whoo");
+    this.sound.add("zoom-in");
   }
   doLaughSound() {
     if (this.busyLaughin) {
@@ -540,7 +549,8 @@ export default class Main extends Phaser.Scene {
       return;
     }
     let total = this.level * 4;
-
+    this.sound.get("whoo").play();
+    this.sound.get("zoom-in").play();
     let camscale = 2 - this.level * 0.5;
     this.cameras.main.zoomTo(camscale, 300);
     let dist = { 1: 150, 2: 400, 3: 700 }[this.level];
