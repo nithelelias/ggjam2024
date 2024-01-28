@@ -45,12 +45,14 @@ export default class UIScene extends Phaser.Scene {
     };
   }
   createTimeBoard() {
-    let template = `⏱️ M:S`;
+    let template = `M:S`;
     let startTime = Date.now();
     let bg = this.add.image(0, 120, "uiboard").setOrigin(0).setScale(0.8);
+    let timeicon = this.add.image(16, 145, "time-icon").setOrigin(0);
+    window.timeicon = timeicon;
     let active = true;
     this.timeText = this.add
-      .text(80, 170, template, {
+      .text(100, 160, template, {
         fontFamily: "gamefont",
         color: "white",
         fontSize: 32,
@@ -79,7 +81,8 @@ export default class UIScene extends Phaser.Scene {
     };
     this.timeText.update();
     bg.setDepth(1000);
-    this.timeText.setDepth(1001);
+    timeicon.setDepth(1001);
+    this.timeText.setDepth(1002);
   }
   volumeControl() {
     const btn = addButton(
@@ -113,7 +116,7 @@ export default class UIScene extends Phaser.Scene {
     if (!this.progress) {
       return;
     }
-    let w = this.scale.width * (Math.max(1, percentage) / 100);
+    let w = this.scale.width * (Math.max(.1, percentage) / 100);
     this.progress.setDisplaySize(w, 32);
     let color = {
       1: 0x705afe,
@@ -133,7 +136,10 @@ export default class UIScene extends Phaser.Scene {
     graphics.fillRoundedRect(0, 0, this.scale.width, this.scale.height);
     let bg = this.add.image(0, 0, "final-modal").setOrigin(0.5);
 
-    let logo = this.add.image(0, 0, "logo").setScale(0.6).setOrigin(0.5, 1);
+    let logo = this.add
+      .image(0, 0, win ? "logo" : "sad2")
+      .setScale(win ? 0.6 : 1)
+      .setOrigin(0.5, 1);
 
     const title = this.add
       .text(

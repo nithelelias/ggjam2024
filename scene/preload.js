@@ -72,8 +72,10 @@ export default class Preloader extends Phaser.Scene {
     this.load.image("cursor_pointer", "assets/cur_point.png");
     this.load.image("cursor_press", "assets/cur_press.png");
     this.load.image("cursor_grab", "assets/cur_grab.png");
+    
 
     ///
+    this.load.image("time-icon", "assets/time-icon.png");
     this.load.image("curved-line", "assets/curved-line.png");
     this.load.image("elipse-1", "assets/elipse-1.png");
     this.load.image("elipse-2", "assets/elipse-2.png");

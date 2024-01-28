@@ -5,6 +5,7 @@ import Preloader from "./scene/preload.js";
 import Team from "./scene/team.js";
 import UIScene from "./scene/ui.js";
 let parent = document.querySelector("#gameWrapper");
+
 const config = {
   type: Phaser.AUTO,
   /* width: window.innerWidth,

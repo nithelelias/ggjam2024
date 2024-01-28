@@ -685,72 +685,16 @@ export default class Main extends Phaser.Scene {
         i
       );
     }
+  }
+  winScreen() {
+    this.gameEnd = true;
+    this.cameras.main.zoomTo(1, 300);
+
     const ui = this.scene.get("ui");
     ui.finalScreen(true);
     setTimeout(() => {
       this.scene.pause();
     }, 10000);
-  }
-  winScreen() {
-    this.gameEnd = true;
-    this.cameras.main.zoomTo(1, 300);
-    const goToCenter = () => {
-      let promise = [];
-
-      this.groupPersonajes.children.entries.forEach((_el) => {
-        _el.isNegative = false;
-        promise.push(
-          new Promise((resolve) => {
-            this.tweens.add({
-              targets: _el,
-              x: this.center.x,
-              y: this.center.y,
-              delay: random(100, 500),
-              //alpha: 0.3,
-              ease: "sine.inout",
-              duration: random(300, 600),
-              onComplete: () => {
-                resolve();
-              },
-            });
-          })
-        );
-      });
-      return Promise.all(promise);
-    };
-    const explode = () => {
-      let promise = [];
-      let dist = this.center.x * 0.8;
-      this.groupPersonajes.children.entries.forEach((_el) => {
-        promise.push(
-          new Promise((resolve) => {
-            let angle = Phaser.Math.Angle.RandomDegrees();
-            let vel = this.physics.velocityFromAngle(
-              angle,
-              dist * (random(3, 10) / 10)
-            );
-            this.tweens.add({
-              targets: _el,
-              x: this.center.x + vel.x,
-              y: this.center.y + vel.y,
-              delay: random(100, 300),
-              //alpha: 0.3,
-              ease: "sine.inout",
-              duration: random(300, 600),
-              onComplete: () => {
-                resolve();
-              },
-            });
-          })
-        );
-      });
-      return Promise.all(promise);
-    };
-    goToCenter().then(() => {
-      //  this.cameras.main.zoomTo(1, 600);
-      explode();
-      this.particleEnd();
-    });
   }
   doLose() {
     this.gameEnd = true;
