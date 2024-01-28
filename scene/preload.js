@@ -101,18 +101,9 @@ export default class Preloader extends Phaser.Scene {
   }
   create() {
     this.waitForWebFont().then(() => {
-      this.add
-        .text(0, this.scale.height, "cargando", {
-          fontFamily: "gamefont",
-        })
-        .setOrigin(0, 1);
-      this.add
-        .text(100, 0, "el juego", {
-          fontFamily: "gamefont2",
-        })
-        .setOrigin(0, 1);
+     
       setTimeout(() => {
-        this.scene.start("intro");
+        this.scene.start("preintro");
       }, 500);
     });
   }

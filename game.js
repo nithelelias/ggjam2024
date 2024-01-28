@@ -1,6 +1,7 @@
 import Instructions from "./scene/instructions.js";
 import Intro from "./scene/intro.js";
 import Main from "./scene/main.js";
+import PreIntro from "./scene/preIntro.js";
 import Preloader from "./scene/preload.js";
 import Team from "./scene/team.js";
 import UIScene from "./scene/ui.js";
@@ -24,7 +25,7 @@ const config = {
       debug: true,
     },
   },
-  scene: [Preloader, Intro, UIScene, Main, Instructions, Team],
+  scene: [Preloader, PreIntro, Intro, UIScene, Main, Instructions, Team],
 };
 
 const game = new Phaser.Game(config);
