@@ -1,5 +1,4 @@
 export default function hitAnimationFn(target) {
-  const red = Phaser.Display.Color.ValueToColor(0xff0000);
   const white = Phaser.Display.Color.ValueToColor(0xffffff);
   var busy = false,
     promise = Promise.resolve();
@@ -31,7 +30,6 @@ export default function hitAnimationFn(target) {
             colorObject.g,
             colorObject.b
           );
-          // --  console.log(value,color,"=>",colorObject,fromColor,toColor)
           target.setTintFill(color);
         },
         onComplete: () => {
@@ -60,7 +58,7 @@ export default function hitAnimationFn(target) {
       });
     });
   };
-  const play = (vel) => {
+  const play = (vel, secondColor = 0xff0000) => {
     if (busy) {
       return promise;
     }
@@ -69,7 +67,7 @@ export default function hitAnimationFn(target) {
     let tinted = target.isTinted;
 
     promise = Promise.all([
-      tintAnimation(white, red),
+      tintAnimation(white, Phaser.Display.Color.ValueToColor(secondColor)),
       shakeAnimation(vel),
     ]).then(() => {
       target.clearTint();

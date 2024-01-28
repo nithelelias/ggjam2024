@@ -15,8 +15,29 @@ export default class Intro extends Phaser.Scene {
       .image(this.scale.width * 0.5, this.scale.height * 0.4, "logo")
       .setOrigin(0.5)
       .setScale(0.2);
-
     this.tweens.chain({
+      targets: logo,
+      tweens: [
+        {
+          scale: 1,
+          ease: "bounce.out",
+          easeParams: [3, 2],
+          duration: 600,
+        },
+
+        {
+          scale: 1,
+          angle: 0,
+          y: this.scale.height * 0.4,
+          ease: "sine.inout",
+          duration: 300,
+        },
+      ],
+      onComplete: () => {
+       
+      },
+    }); this.showMenu();
+    /*    this.tweens.chain({
       targets: logo,
       tweens: [
         {
@@ -66,7 +87,7 @@ export default class Intro extends Phaser.Scene {
       onComplete: () => {
         this.showMenu();
       },
-    });
+    }); */
   }
   showMenu() {
     let gap = 280;
@@ -96,6 +117,23 @@ export default class Intro extends Phaser.Scene {
         ),
       ]
     );
+
+    container.list.forEach((element, i) => {
+      element.setScale(0);
+      element.setAlpha(0);
+      this.tweens.add({
+        targets: element,
+        duration: 300,
+        scale: 1,
+        alpha: 1,
+        ease: "bounce.out",
+        easeParams: [3, 2],
+        delay: 100 * i,
+        onComplete: () => {
+          this.sound.add("pop").play();
+        },
+      });
+    });
   }
   showInfo() {
     this.scene.stop();

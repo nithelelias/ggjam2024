@@ -97,7 +97,7 @@ function shotLaugh(
   laugh_shot.from = from;
   laugh_shot.intensiti = Phaser.Math.Clamp(
     1,
-    parseInt(from.laughlevel / 10),
+    parseInt(from.happyLevel / 10),
     10
   );
   scene.addToShotGroup(laugh_shot);
@@ -130,9 +130,11 @@ function shotLaugh(
 }
 
 export class Personaje extends Phaser.GameObjects.Container {
-  laughlevel = 0;
+  happyLevel = 0;
+  coeRedLaug = 1;
   busy = { thickle: false, laughing: false, laugh_text: false };
   isNegative = false;
+
   is = "Personaje";
   constructor(scene, x, y) {
     super(scene, x, y, []);
@@ -146,8 +148,10 @@ export class Personaje extends Phaser.GameObjects.Container {
       scene.add.image(0, -10, "face1").setScale(0.4),
     ]);
     this.sprite.bordercircle = this.sprite.list[0];
+    this.sprite.foots = this.sprite.list[1];
     this.sprite.body = this.sprite.list[2];
     this.sprite.face = this.sprite.list[3];
+
     let rate = 80 / this.sprite.body.width;
     this.sprite.body.setScale(rate, rate);
     /* this.sprite.body.fxShadow = this.sprite.body.preFX.addShadow(
@@ -163,20 +167,65 @@ export class Personaje extends Phaser.GameObjects.Container {
     this.setSize(this.sprite.body.displayWidth, this.sprite.body.displayHeight);
 
     this.hitAnimation = hitAnimationFn(this.sprite.body);
+    this.setHappyLevel(0);
+  }
+  setHappyLevel(level) {
+    this.happyLevel = level;
   }
   setAsInteractive() {
     this.setInteractive({ cursor: `url("assets/cur_point.png"), grab` });
     this.scene.input.setDraggable(this);
+    let grabsound = this.scene.sound.add("grab");
+    let dropsound = this.scene.sound.add("drop");
+    let pressed = false,
+      dragging = false;
+    let lastTimeout = 0;
+    //this.on("dragstart",);
+    const onrealDragStart = () => {
+      dragging = true;
+      this.sprite.foots.setTexture("foots2").setScale(0.32);
+      this.scene.tweens.add({
+        targets: this,
+        y: "-=16",
+        duration: 60,
+      });
+    };
+    this.on("dragend", () => {
+      if (dragging) {
+        this.scene.tweens.add({
+          targets: this,
+          y: "+=16",
+          duration: 60,
+          onComplete: () => {
+            this.sprite.foots.setTexture("foots").setScale(0.5);
+          },
+        });
+      }
+    });
     this.on("pointerdown", (pointer) => {
       if (this.isNegative) {
         laughUp(this.scene, this.x, this.y, "No", "red");
         return;
       }
+      pressed = true;
+      dragging = false;
+      grabsound.play();
+      clearTimeout(lastTimeout);
+      lastTimeout = setTimeout(() => {
+        if (pressed) {
+          onrealDragStart();
+        }
+      }, 300);
+
       this.setScale(1.05);
       this.setDepth(5000);
       this.scene.input.once("pointerup", () => {
+        pressed = false;
         this.setScale(1);
         this.setDepth(this.y + 50);
+        if (dragging) {
+          dropsound.play();
+        }
       });
       //this.scene.input.setDefaultCursor(`url("assets/cur_grab.png"), grab`);
       this.scene.input.manager.setCursor({
@@ -184,19 +233,20 @@ export class Personaje extends Phaser.GameObjects.Container {
       });
       this.doThickle();
     });
+    return this;
   }
-  doThickle() {
-    /* console.log(this.laughlevel); */
+  doThickle() { 
     if (!this.thikcle_animation()) {
-      return;
+      return false;
     }
     this.laughing(laughClickpower);
     this.doShotLaugh();
+    return true;
   }
   setAsNegative() {
     this.isNegative = true;
     //this.sprite.bordercircle.setAlpha(1);
-    this.laughlevel = -50;
+    this.setHappyLevel(-50);
     this.setScale(1.5);
     this.sprite.body.setTexture("body-sad");
     setTimeout(() => {
@@ -239,9 +289,9 @@ export class Personaje extends Phaser.GameObjects.Container {
     if (this.busy.laugh_text) {
       return false;
     }
-    let timeout = this.laughlevel < 70 ? 1000 : 500;
+    let timeout = this.happyLevel < 70 ? 1000 : 500;
     this.busy.laugh_text = true;
-    let textLaugh = getLaughTextByLevel(this.laughlevel);
+    let textLaugh = getLaughTextByLevel(this.happyLevel);
     laughUp(this.scene, this.x, this.y, textLaugh);
 
     setTimeout(() => {
@@ -256,7 +306,7 @@ export class Personaje extends Phaser.GameObjects.Container {
     }
 
     this.busy.laughing = true;
-    let vel = 5 * (this.laughlevel / 50);
+    let vel = 5 * (this.happyLevel / 50);
     this.scene.add.tween({
       targets: this.sprite,
       y: -vel,
@@ -267,10 +317,11 @@ export class Personaje extends Phaser.GameObjects.Container {
       },
     });
   }
-  laughing(_laughpower) {
+  laughing(_laughpower = 1) {
     this.coeRedLaug = 1;
-    if (this.laughlevel < 100) {
-      this.laughlevel += _laughpower;
+
+    if (this.happyLevel < 100) {
+      this.happyLevel += _laughpower;
     }
   }
   catchLaugh(intensiti = 1) {
@@ -280,8 +331,8 @@ export class Personaje extends Phaser.GameObjects.Container {
     this.busy.catched_laugh = true;
     if (this.isNegative) {
       this.laughing(intensiti / 10);
-      if (this.laughlevel < 80) {
-        this.hitAnimation({ x: 2, y: 0 });
+      if (this.happyLevel < 80) {
+        this.hitAnimation({ x: 2, y: 0 }, 0x1889df);
       }
     } else {
       this.laughing(intensiti);
@@ -291,24 +342,21 @@ export class Personaje extends Phaser.GameObjects.Container {
       this.busy.catched_laugh = false;
     }, random(100, 500));
   }
-  catchNegative(intensiti) {
-    this.laughlevel -= intensiti;
-    this.hitAnimation({ x: 4, y: 0 });
+  catchNegative(intensiti = 1) {
+    this.happyLevel -= intensiti;
+    this.hitAnimation({ x: 4, y: 0 }, 0xfc6769);
   }
-  reduceLaughLevel() {
+  reduceHappyLevel() {
     this.coeRedLaug = Math.max(0, this.coeRedLaug - 0.0001);
     let redLaugh = Math.min(1, 1 - this.coeRedLaug);
-    this.laughlevel -= redLaugh;
-    if (this.laughlevel < -50) {
-      this.laughlevel = -50;
-    }
+    this.happyLevel -= redLaugh;
   }
   doShotLaugh() {
-    if (this.laughlevel > 10 && random(1, 10) > 2) {
+    if (this.happyLevel > 10 && random(1, 10) > 2) {
       shotLaugh(
         this.scene,
         this,
-        getLaughTextByLevel(this.laughlevel),
+        getLaughTextByLevel(this.happyLevel),
         200,
         "#1889DF",
         16
@@ -318,7 +366,7 @@ export class Personaje extends Phaser.GameObjects.Container {
     }
   }
   doShotNegative() {
-    if (this.laughlevel > 80) {
+    if (this.happyLevel > 80) {
       return;
     }
     if (this.busy.shotting_negative) {
@@ -341,38 +389,46 @@ export class Personaje extends Phaser.GameObjects.Container {
   }
   updateFace() {
     let t_name = "sad3";
-    if (this.laughlevel > -30) {
+    if (this.happyLevel > -30) {
       t_name = "sad2";
     }
 
-    if (this.laughlevel > -10) {
+    if (this.happyLevel > -10) {
       t_name = "sad1";
     }
 
-    if (this.laughlevel > 0) {
+    if (this.happyLevel > 0) {
       t_name = "happy1";
     }
 
-    if (this.laughlevel > 40) {
+    if (this.happyLevel > 40) {
       t_name = "happy2";
     }
-    if (this.laughlevel > 80) {
+    if (this.happyLevel > 80) {
       t_name = "happy3";
     }
 
     this.sprite.face.setTexture(t_name);
     if (this.isNegative) {
-      if (this.laughlevel > 80) {
+      if (this.happyLevel > 80) {
         this.sprite.body.setTexture("body");
       } else {
         this.sprite.body.setTexture("body-sad");
       }
     }
   }
+  limitHappyLevel() {
+    if (this.happyLevel < -50) {
+      this.happyLevel = -50;
+    }
+    if (this.happyLevel > 100) {
+      this.happyLevel = 100;
+    }
+  }
   update() {
-    if (this.laughlevel > 0) {
-      this.reduceLaughLevel();
-      if (this.doLaughText() && this.laughlevel > 90) {
+    if (this.happyLevel > 0) {
+      this.reduceHappyLevel();
+      if (this.doLaughText() && this.happyLevel > 90) {
         this.doShotLaugh();
       }
     }
@@ -380,19 +436,14 @@ export class Personaje extends Phaser.GameObjects.Container {
       this.doShotNegative();
     }
     this.updateFace();
-
-    if (this.laughlevel < -50) {
-      this.laughlevel = -50;
-    }
-    if (this.laughlevel > 100) {
-      this.laughlevel = 100;
-    }
+    this.limitHappyLevel();
   }
 }
 
 export default class Main extends Phaser.Scene {
   laughPercentage = 0;
   level = 0;
+  gameEnd = false;
   constructor() {
     super({
       key: "main",
@@ -409,6 +460,7 @@ export default class Main extends Phaser.Scene {
     window.main = this;
   }
   create() {
+    this.gameEnd = false;
     const ui = this.scene.get("ui");
     ui.startMain();
     this.level = 0;
@@ -423,6 +475,7 @@ export default class Main extends Phaser.Scene {
 
     this.groupPersonajes = this.physics.add.group({
       runChildUpdate: true,
+      collideWorldBounds: true,
     });
     this.laugShotsGroup = this.physics.add.group();
 
@@ -446,12 +499,20 @@ export default class Main extends Phaser.Scene {
       this
     );
     this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
+      let bounds = this.physics.world.bounds;
+      if (dragX <= bounds.left || dragX >= bounds.right) {
+        return;
+      }
+      if (dragY <= bounds.top || dragY >= bounds.bottom) {
+        return;
+      }
       gameObject.x = dragX;
       gameObject.y = dragY;
       if (gameObject.doThickle) {
         gameObject.doThickle();
       }
     });
+
     this.nextLevel();
   }
   initAudios() {
@@ -467,7 +528,7 @@ export default class Main extends Phaser.Scene {
     }
 
     let laughing = this.groupPersonajes.children.entries.filter(
-      (p) => p.laughlevel > 20
+      (p) => p.happyLevel > 20
     );
 
     if (laughing.length < 1) {
@@ -519,23 +580,20 @@ export default class Main extends Phaser.Scene {
   }
   addPersonaje(x, y) {
     const p = new Personaje(this, x, y);
-    (p._audio_ids = [getNewLaughAudio()]),
-      getNewLaughAudio(),
-      getNewLaughAudio();
+    p._audio_ids = [getNewLaughAudio(), getNewLaughAudio(), getNewLaughAudio()];
 
     this.groupPersonajes.add(p);
 
-    this.physics.add.collider(p, this.groupPersonajes);
     return p;
   }
   calcLaughPercentage() {
-    let laughlevel = 0;
+    let total_happy = 0;
     let total = 0;
     this.groupPersonajes.children.entries.forEach((p) => {
-      laughlevel += p.laughlevel;
+      total_happy += p.happyLevel;
       total++;
     });
-    this.laughPercentage = laughlevel / total;
+    this.laughPercentage = total_happy / total;
   }
 
   nextLevel() {
@@ -563,10 +621,11 @@ export default class Main extends Phaser.Scene {
           angle,
           random(dist - 20, dist + 20)
         );
-        this.addPersonaje(
+        let p = this.addPersonaje(
           this.center.x + vel.x,
           this.center.y + vel.y
         ).setAsInteractive();
+        p.setHappyLevel(30);
       }
     }
 
@@ -592,16 +651,46 @@ export default class Main extends Phaser.Scene {
         angle += 45;
       }
     }
+    let wor_dist = dist * 2;
+    this.physics.world.setBounds(
+      this.center.x - wor_dist,
+      this.center.y - wor_dist,
+      wor_dist * 2,
+      wor_dist * 2
+    );
+  }
 
-    /* let totalBad = total / 4;
-    for (let i = 0; i < totalBad; i++) {
-      let p = newCreated.splice(random(0, newCreated.length - 1), 1)[0];
-      if (p) {
-        p.setAsNegative();
-      }
-    } */
+  particleEnd() {
+    this.matter.world.setBounds(0, 0, this.scale.width, this.scale.height);
+    let radius = 82;
+    for (let i = 0; i < 128; i++) {
+      setTimeout(
+        (_idx) => {
+          const particle = this.matter.add.image(
+            Phaser.Math.Between(0, this.scale.width),
+            0,
+            "par" + random(1, 3),
+            null,
+            { shape: { type: "circle", radius }, ignorePointer: true }
+          );
+
+          particle.setScale(random(3, 14) / 10);
+          particle.setFriction(0.005);
+          particle.setBounce(0.9);
+          particle.setMass(random(1, 2));
+        },
+        60 * i,
+        i
+      );
+    }
+    const ui = this.scene.get("ui");
+    ui.finalScreen(true);
+    setTimeout(() => {
+      this.scene.pause();
+    }, 10000);
   }
   winScreen() {
+    this.gameEnd = true;
     this.cameras.main.zoomTo(1, 300);
     const goToCenter = () => {
       let promise = [];
@@ -661,43 +750,26 @@ export default class Main extends Phaser.Scene {
       this.particleEnd();
     });
   }
-  particleEnd() {
-    this.matter.world.setBounds(0, 0, this.scale.width, this.scale.height);
-    let radius = 82;
-    for (let i = 0; i < 128; i++) {
-      setTimeout(
-        (_idx) => {
-          const particle = this.matter.add.image(
-            Phaser.Math.Between(0, this.scale.width),
-            0,
-            "par" + random(1, 3),
-            null,
-            { shape: { type: "circle", radius }, ignorePointer: true }
-          );
+  doLose() {
+    this.gameEnd = true;
+    this.cameras.main.zoomTo(1, 300);
 
-          particle.setScale(random(3, 14) / 10);
-          particle.setFriction(0.005);
-          particle.setBounce(0.9);
-          particle.setMass(random(1, 2));
-        },
-        60 * i,
-        i
-      );
-    }
     const ui = this.scene.get("ui");
-    ui.finalScreen();
-    setTimeout(() => {
-      this.scene.pause();
-    }, 10000);
+    ui.finalScreen(false);
   }
-
   update() {
+    if (this.gameEnd || this.level === 0) {
+      return;
+    }
     this.calcLaughPercentage();
     /*  if (this.laughPercentage > 5) {
       this.doLaughSound();
     } */
     if (this.laughPercentage > 100) {
       this.nextLevel();
+    }
+    if (this.laughPercentage < -20) {
+      this.doLose();
     }
   }
 }

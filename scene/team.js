@@ -79,6 +79,7 @@ export default class Team extends Phaser.Scene {
       container.add(containerPic);
       const mask = new Phaser.Display.Masks.BitmapMask(this, maskGraphics);
       picImg.setMask(mask);
+      maskGraphics.setVisible(false)
     }
   }
 }

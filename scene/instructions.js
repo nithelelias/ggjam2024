@@ -126,7 +126,7 @@ export default class Instructions extends Phaser.Scene {
     p1._audio_ids = ["laugh1", "laugh2", "laugh3"];
     let p2 = new Personaje(this, center.x + gap, bottom);
     p2._audio_ids = ["laugh4", "laugh5", "laugh6"];
-
+    p2.setHappyLevel(20)
     p1.setAsNegative();
     p2.setAsInteractive();
     window.pjs = [p1, p2];
@@ -151,7 +151,7 @@ export default class Instructions extends Phaser.Scene {
           this.helpText.next();
         }
 
-        if (personaje.laughlevel > 90 && this.helpText.state === 4) {
+        if (personaje.happyLevel > 90 && this.helpText.state === 4) {
           this.helpText.next();
         }
 
@@ -172,9 +172,8 @@ export default class Instructions extends Phaser.Scene {
     });
     let timeEvent = this.time.addEvent({
       delay: 60,
-      callback: () => {
-        console.log("tE");
-        if (this.helpText.state === 2 && p2.laughlevel > 10) {
+      callback: () => { 
+        if (this.helpText.state === 2 && p2.happyLevel > 10) {
           this.helpText.next();
           timeEvent.destroy();
         }

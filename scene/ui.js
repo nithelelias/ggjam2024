@@ -12,10 +12,8 @@ export default class UIScene extends Phaser.Scene {
       fontSize: 24,
     }); */
     this.input.setDefaultCursor(`url("assets/cur_hand.png"), grab`);
-    window.ui = this;
-    //  customCursor(this);
-    checkLandScape(this.game, () => {
-      console.log("landscape good");
+    window.ui = this; 
+    checkLandScape(this.game, () => { 
       setTimeout(() => {
         window.scrollTo(0, -100);
       }, 100);
@@ -80,6 +78,8 @@ export default class UIScene extends Phaser.Scene {
       }
     };
     this.timeText.update();
+    bg.setDepth(1000);
+    this.timeText.setDepth(1001);
   }
   volumeControl() {
     const btn = addButton(
@@ -115,7 +115,7 @@ export default class UIScene extends Phaser.Scene {
     let w = this.scale.width * (Math.max(1, percentage) / 100);
     this.progress.setDisplaySize(w, 32);
   }
-  finalScreen() {
+  finalScreen(win = true) {
     this.timeText.stop();
     const graphics = this.add.graphics();
 
@@ -128,7 +128,7 @@ export default class UIScene extends Phaser.Scene {
     let logo = this.add.image(0, 0, "logo").setScale(0.6).setOrigin(0.5, 1);
 
     const title = this.add
-      .text(0, logo.y + logo.displayHeight / 4 + 8, "Felicidades", {
+      .text(0, logo.y + logo.displayHeight / 4 + 8, win?"Felicidades":"¿estas Triste?", {
         fontFamily: "gamefont",
         fontSize: 64,
         color: "#FF6669",
@@ -136,7 +136,7 @@ export default class UIScene extends Phaser.Scene {
       .setOrigin(0.5, 0);
 
     const prah = this.add
-      .text(0, title.y + title.height + 8, "¡Contagiaste a todos de  risa!", {
+      .text(0, title.y + title.height + 8,  win?"¡Contagiaste a todos de  risa!":"¡Seguro que para la proxima lo logras!", {
         fontFamily: "gamefont2",
         fontSize: 32,
         color: "black",

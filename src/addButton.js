@@ -8,11 +8,14 @@ export default function addButton(
 ) {
   let btn = scene.add.image(0, 0, img_idle);
   btn.setInteractive({ cursor: `url("assets/cur_point.png"), grab` });
-
+  let popsound = scene.sound.add("pop");
   btn.on("pointerdown", () => {
     btn.setTexture(img_press);
     btn.setScale(0.98);
-    btn.once("pointerup", onClick);
+    btn.once("pointerup", () => {
+      popsound.play();
+      onClick();
+    });
     scene.input.once("pointerup", () => {
       btn.setTexture(img_idle);
       btn.setScale(1);

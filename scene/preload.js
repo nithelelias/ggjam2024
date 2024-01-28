@@ -26,6 +26,9 @@ export default class Preloader extends Phaser.Scene {
     }
     this.load.audio("whoo", "assets/whoo.mp3");
     this.load.audio("zoom-in", "assets/zoom-in.mp3");
+    this.load.audio("pop", "assets/pop.mp3");
+    this.load.audio("grab", "assets/grab.mp3");
+    this.load.audio("drop", "assets/drop.mp3");
     //////// audios ---|
 
     this.load.image("happy1", "assets/happy1.png");
@@ -45,6 +48,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.image("body-3", "assets/body3.png");
     this.load.image("body-4", "assets/body4.png");
     this.load.image("foots", "assets/foots.png");
+    this.load.image("foots2", "assets/foots2.png");
     this.load.image("par1", "assets/par-1.png");
     this.load.image("par2", "assets/par-2.png");
     this.load.image("par3", "assets/par-3.png");
